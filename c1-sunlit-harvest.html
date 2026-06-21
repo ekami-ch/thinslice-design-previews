@@ -1,0 +1,1538 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Footprint Tech · Sunlit Harvest</title>
+<style>
+  :root {
+    --ground: #FCF6E9;
+    --surface: #FFFDF7;
+    --text: #33291A;
+    --accent: #E0A12A;
+    --accent-2: #4E8C3F;
+    --h1: #5A3D24;
+    --h2: #8A5A2A;
+    --h3: #D2A23F;
+    --h4: #B07C4C;
+
+    --text-soft: #6E5E45;
+    --text-faint: #8E7E63;
+    --line: #EBE0C7;
+    --line-strong: #DFCFAA;
+    --surface-2: #FAF3E2;
+    --accent-deep: #B97E12;
+    --accent-2-deep: #3A6B2F;
+    --accent-2-soft: #EAF1E2;
+    --gold-soft: #FBEFD2;
+
+    --warn: #C8721E;
+    --danger: #B5402E;
+    --warn-soft: #FBEAD2;
+    --danger-soft: #F7E0D9;
+
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 18px;
+    --r-xl: 26px;
+
+    --shadow-sm: 0 1px 2px rgba(90,61,36,.06), 0 2px 6px rgba(90,61,36,.05);
+    --shadow-md: 0 2px 5px rgba(90,61,36,.07), 0 10px 24px rgba(90,61,36,.08);
+    --shadow-lg: 0 4px 10px rgba(90,61,36,.08), 0 22px 50px rgba(120,82,30,.14);
+
+    --sans: "Segoe UI", system-ui, "Helvetica Neue", Roboto, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    color: var(--text);
+    background: var(--ground);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  :focus-visible {
+    outline: 2.5px solid var(--accent-2-deep);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  button { font-family: inherit; }
+
+  /* ============ APP SHELL ============ */
+  .app {
+    display: grid;
+    grid-template-columns: 248px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ---- sidebar ---- */
+  .sidebar {
+    background: linear-gradient(178deg, #FFFDF7 0%, #FBF3E0 100%);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 20px 20px 18px;
+  }
+  .brand-mark {
+    width: 38px; height: 38px;
+    border-radius: 11px;
+    background: radial-gradient(circle at 32% 28%, #F2BE55 0%, var(--accent) 46%, var(--accent-deep) 100%);
+    box-shadow: 0 3px 8px rgba(185,126,18,.35), inset 0 1px 0 rgba(255,255,255,.5);
+    display: grid; place-items: center;
+    flex: none;
+  }
+  .brand-mark svg { display: block; }
+  .brand-name { font-weight: 700; font-size: 15px; letter-spacing: .1px; }
+  .brand-sub { font-size: 11px; color: var(--text-faint); letter-spacing: .3px; }
+
+  /* soil-horizon rail motif on sidebar */
+  .horizon-rail {
+    width: 5px;
+    border-radius: 3px;
+    background: linear-gradient(to bottom,
+      var(--h1) 0%, var(--h1) 22%,
+      var(--h2) 22%, var(--h2) 46%,
+      var(--h3) 46%, var(--h3) 76%,
+      var(--h4) 76%, var(--h4) 100%);
+    align-self: stretch;
+    margin: 8px 0;
+    flex: none;
+    box-shadow: inset 0 0 0 1px rgba(90,61,36,.12);
+  }
+
+  .nav { padding: 6px 12px; flex: 1; }
+  .nav-label {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--text-faint); font-weight: 700;
+    padding: 10px 12px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    width: 100%;
+    padding: 9px 12px;
+    border: none; background: none;
+    border-radius: var(--r-sm);
+    color: var(--text-soft);
+    font-size: 13.5px; font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 1px;
+  }
+  .nav-item:hover { background: rgba(224,161,42,.10); color: var(--text); }
+  .nav-item .ico { width: 18px; height: 18px; flex: none; color: var(--text-faint); }
+  .nav-item.active {
+    background: linear-gradient(95deg, var(--gold-soft), #FCEAC1);
+    color: var(--text); font-weight: 650;
+    box-shadow: var(--shadow-sm);
+  }
+  .nav-item.active .ico { color: var(--accent-deep); }
+  .nav-item.active { position: relative; }
+  .nav-item.active::before {
+    content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px;
+    width: 4px; border-radius: 0 4px 4px 0;
+    background: linear-gradient(var(--accent), var(--accent-deep));
+  }
+
+  .nav-foot {
+    padding: 14px 16px;
+    border-top: 1px solid var(--line);
+    font-size: 11px; color: var(--text-faint);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 0 3px rgba(78,140,63,.18); }
+
+  /* ---- main ---- */
+  .main { display: flex; flex-direction: column; min-width: 0; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(255,253,247,.86);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 16px;
+    padding: 12px 26px;
+  }
+  /* hamburger — hidden on desktop, shown in mobile media query */
+  .hamburger { display: none; }
+  .drawer-overlay { display: none; }
+
+  .search {
+    flex: 1; max-width: 460px;
+    display: flex; align-items: center; gap: 9px;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 9px 16px;
+    color: var(--text-faint);
+    box-shadow: var(--shadow-sm);
+  }
+  .search input {
+    border: none; background: none; outline: none;
+    font: inherit; color: var(--text); flex: 1;
+  }
+  .search input::placeholder { color: var(--text-faint); }
+  .topbar-spacer { flex: 1; }
+
+  .season {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--accent-2-soft);
+    border: 1px solid #D2E0C3;
+    color: var(--accent-2-deep);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 12.5px; font-weight: 600;
+    cursor: pointer;
+  }
+  .season .leaf { width: 14px; height: 14px; }
+
+  .user-chip {
+    display: flex; align-items: center; gap: 10px;
+    padding: 5px 12px 5px 5px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    cursor: pointer;
+  }
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #6FB05C, var(--accent-2) 70%, var(--accent-2-deep));
+    color: #fff; display: grid; place-items: center;
+    font-weight: 700; font-size: 12px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
+    flex: none;
+  }
+  .user-meta { line-height: 1.2; }
+  .user-name { font-size: 12.5px; font-weight: 650; }
+  .user-org { font-size: 11px; color: var(--text-faint); }
+
+  .content { padding: 26px 30px 60px; }
+
+  /* ============ FIELDS LIST ============ */
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-title { font-size: 25px; font-weight: 750; letter-spacing: -.4px; margin: 0; }
+  .page-sub { color: var(--text-soft); margin: 5px 0 0; font-size: 13.5px; }
+  .head-actions { display: flex; gap: 10px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    border-radius: var(--r-sm);
+    padding: 9px 15px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--line-strong);
+    background: var(--surface); color: var(--text);
+  }
+  .btn:hover { background: var(--surface-2); }
+  .btn-primary {
+    border: none; color: #3A2C0A;
+    background: linear-gradient(160deg, #F0BB52, var(--accent) 60%, var(--accent-deep));
+    box-shadow: 0 2px 6px rgba(185,126,18,.32), inset 0 1px 0 rgba(255,255,255,.45);
+  }
+  .btn-primary:hover { filter: brightness(1.03); }
+  .btn .ico { width: 16px; height: 16px; }
+
+  /* sunlit summary stat strip */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat {
+    position: relative; overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat::after {
+    content: ""; position: absolute; right: -30px; top: -30px;
+    width: 110px; height: 110px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(224,161,42,.16), transparent 68%);
+  }
+  .stat .k { font-size: 11.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .8px; font-weight: 650; }
+  .stat .v { font-size: 27px; font-weight: 750; margin-top: 5px; letter-spacing: -.5px; }
+  .stat .v small { font-size: 14px; color: var(--text-faint); font-weight: 600; letter-spacing: 0; }
+  .stat .d { font-size: 12px; margin-top: 3px; color: var(--text-soft); }
+  .stat .d.up { color: var(--accent-2-deep); font-weight: 600; }
+
+  /* table card */
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+  .table-toolbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .seg {
+    display: inline-flex; background: var(--surface-2);
+    border: 1px solid var(--line); border-radius: 999px; padding: 3px;
+  }
+  .seg button {
+    border: none; background: none; cursor: pointer;
+    padding: 6px 14px; border-radius: 999px;
+    font-size: 12.5px; font-weight: 600; color: var(--text-soft);
+  }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+  .toolbar-count { margin-left: auto; font-size: 12.5px; color: var(--text-faint); }
+
+  .table-scroll { overflow-x: auto; }
+  table.fields {
+    width: 100%; min-width: 980px; border-collapse: collapse;
+  }
+  table.fields thead th {
+    text-align: left;
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: .9px;
+    color: var(--text-faint); font-weight: 700;
+    padding: 11px 14px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+    position: sticky; top: 0;
+  }
+  table.fields th.r, table.fields td.r { text-align: right; }
+  table.fields tbody td { padding: 0; }
+
+  /* each row is a real button via a wrapping clickable cell trick:
+     we make the whole row a button using role; keep semantic with <button> in first cell spanning */
+  tr.frow { border-bottom: 1px solid var(--line); cursor: pointer; }
+  tr.frow:last-child { border-bottom: none; }
+  tr.frow td { padding: 13px 14px; vertical-align: middle; }
+  tr.frow:hover { background: linear-gradient(90deg, rgba(224,161,42,.07), rgba(224,161,42,.02)); }
+  tr.frow:focus-visible { outline: 2.5px solid var(--accent-2-deep); outline-offset: -2px; }
+
+  .code-cell { display: flex; align-items: center; gap: 11px; }
+  .chip-soil {
+    width: 9px; height: 30px; border-radius: 4px; flex: none;
+    box-shadow: inset 0 0 0 1px rgba(90,61,36,.15);
+  }
+  .code-txt .code { font-family: var(--mono); font-weight: 650; font-size: 13px; }
+  .code-txt .fname { font-size: 12px; color: var(--text-soft); }
+
+  .crop-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 600; white-space: nowrap;
+    background: var(--accent-2-soft); color: var(--accent-2-deep);
+    border: 1px solid #D6E3C8;
+  }
+  .crop-tag .seed { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-2); }
+
+  .ha-cell { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12.5px; }
+  .ha-cell .calc { color: var(--text-faint); }
+
+  /* leafy NDVI bar */
+  .ndvi { display: flex; align-items: center; gap: 9px; min-width: 120px; }
+  .ndvi-track {
+    flex: 1; height: 8px; border-radius: 999px;
+    background: linear-gradient(90deg, #EDE3C9, #E7DCC0);
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(90,61,36,.08);
+  }
+  .ndvi-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, #C7B040, #8FB23E 45%, var(--accent-2));
+  }
+  .ndvi-val { font-family: var(--mono); font-size: 12.5px; font-weight: 600; width: 30px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 650; white-space: nowrap;
+  }
+  .badge .bd { width: 6px; height: 6px; border-radius: 50%; }
+  .b-sampled { background: var(--accent-2-soft); color: var(--accent-2-deep); }
+  .b-sampled .bd { background: var(--accent-2); }
+  .b-pending { background: var(--gold-soft); color: var(--accent-deep); }
+  .b-pending .bd { background: var(--accent); }
+  .b-overdue { background: var(--danger-soft); color: var(--danger); }
+  .b-overdue .bd { background: var(--danger); }
+
+  /* signature pips */
+  .pips { display: inline-flex; align-items: center; gap: 5px; }
+  .pip {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 1.5px solid var(--line-strong);
+    display: grid; place-items: center;
+    color: #fff; font-size: 9px;
+  }
+  .pip.on { background: var(--accent-2); border-color: var(--accent-2-deep); }
+  .pip.off { background: var(--surface-2); }
+  .pips .frac { font-family: var(--mono); font-size: 12px; color: var(--text-soft); margin-left: 3px; font-weight: 600; }
+
+  .status {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+  }
+  .status .sd { width: 7px; height: 7px; border-radius: 50%; }
+  .s-active { color: var(--accent-2-deep); }
+  .s-active .sd { background: var(--accent-2); box-shadow: 0 0 0 3px rgba(78,140,63,.18); }
+  .s-draft { color: var(--text-faint); }
+  .s-draft .sd { background: var(--text-faint); }
+  .s-suspended { color: var(--danger); }
+  .s-suspended .sd { background: var(--danger); }
+
+  .chev { color: var(--text-faint); width: 16px; height: 16px; }
+
+  /* ============ FIELD DETAIL ============ */
+  .detail { display: none; }
+  .view-list .list { display: block; }
+  .view-detail .list { display: none; }
+  .view-detail .detail { display: block; }
+
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: none; border: none; cursor: pointer;
+    color: var(--text-soft); font-size: 13px; font-weight: 600;
+    padding: 6px 10px 6px 6px; border-radius: var(--r-sm);
+    margin-bottom: 16px;
+  }
+  .back-btn:hover { background: var(--surface-2); color: var(--text); }
+  .back-btn .ico { width: 17px; height: 17px; }
+
+  /* sunlit hero header */
+  .detail-hero {
+    position: relative; overflow: hidden;
+    border-radius: var(--r-xl);
+    background:
+      radial-gradient(120% 140% at 88% -20%, rgba(242,190,85,.55), transparent 55%),
+      linear-gradient(112deg, #FDF4DE 0%, #FBEAC4 42%, #F6DDA0 100%);
+    border: 1px solid var(--line-strong);
+    box-shadow: var(--shadow-md);
+    padding: 22px 26px;
+    margin-bottom: 18px;
+  }
+  .detail-hero::after {
+    content: ""; position: absolute; right: -60px; top: -90px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,236,180,.9), rgba(240,187,82,.35) 50%, transparent 72%);
+    pointer-events: none;
+  }
+  .hero-top { display: flex; align-items: flex-start; gap: 18px; position: relative; z-index: 1; }
+  .hero-rail {
+    width: 8px; align-self: stretch; border-radius: 5px; flex: none;
+    background: linear-gradient(to bottom,
+      var(--h1) 0 22%, var(--h2) 22% 46%, var(--h3) 46% 76%, var(--h4) 76% 100%);
+    box-shadow: inset 0 0 0 1px rgba(90,61,36,.18);
+    min-height: 70px;
+  }
+  .hero-id { flex: 1; min-width: 0; }
+  .hero-code {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-weight: 700; font-size: 13px;
+    color: var(--accent-deep);
+    background: rgba(255,255,255,.6);
+    border: 1px solid rgba(185,126,18,.3);
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .hero-name { font-size: 28px; font-weight: 800; letter-spacing: -.6px; margin: 9px 0 6px; }
+  .hero-breadcrumb { font-size: 13px; color: #6A5326; display: flex; flex-wrap: wrap; gap: 4px 4px; align-items: center; }
+  .hero-breadcrumb b { font-weight: 650; color: #4E3D17; }
+  .hero-breadcrumb .sep { color: rgba(120,90,30,.5); }
+  .hero-actions { display: flex; gap: 9px; position: relative; z-index: 1; }
+  .hero-status {
+    position: relative; z-index: 1;
+    display: inline-flex; align-items: center; gap: 7px;
+    margin-top: 14px;
+    background: rgba(255,255,255,.7); border: 1px solid rgba(78,140,63,.3);
+    color: var(--accent-2-deep); font-weight: 650; font-size: 12.5px;
+    padding: 5px 13px; border-radius: 999px;
+  }
+  .hero-status .sd { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 0 3px rgba(78,140,63,.2); }
+
+  /* detail grid */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .card-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 15px 20px 0;
+  }
+  .card-head h3 { margin: 0; font-size: 15px; font-weight: 700; }
+  .card-head .eyebrow { font-size: 10.5px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-deep); font-weight: 700; }
+  .card-head .hd-ico {
+    width: 30px; height: 30px; border-radius: 9px; flex: none;
+    display: grid; place-items: center; color: var(--accent-deep);
+    background: var(--gold-soft);
+  }
+  .card-head .hd-ico.green { color: var(--accent-2-deep); background: var(--accent-2-soft); }
+  .card-body { padding: 16px 20px 20px; }
+
+  /* map card spans */
+  .map-card { grid-column: 1; grid-row: 1 / span 2; }
+  .map-wrap { position: relative; }
+  .map-canvas-holder {
+    position: relative;
+    aspect-ratio: 4 / 3.1;
+    background: linear-gradient(160deg, #F4ECD7, #EFE6CC);
+  }
+  #map { display: block; width: 100%; height: 100%; }
+  .map-cap {
+    font-size: 11.5px; color: var(--text-faint);
+    padding: 9px 16px; border-top: 1px solid var(--line);
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface-2);
+  }
+  .map-cap .ico { width: 13px; height: 13px; color: var(--accent-deep); flex: none; }
+  .map-legend {
+    position: absolute; left: 12px; top: 12px;
+    background: rgba(255,253,247,.92);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 8px 11px; font-size: 11px;
+    box-shadow: var(--shadow-sm);
+    display: grid; gap: 5px;
+  }
+  .map-legend .lg { display: flex; align-items: center; gap: 7px; color: var(--text-soft); }
+  .map-legend .sw { width: 14px; height: 9px; border-radius: 3px; flex: none; }
+  .coord-pill {
+    position: absolute; right: 12px; top: 12px;
+    background: rgba(51,41,26,.82); color: #FBEFD2;
+    font-family: var(--mono); font-size: 11px;
+    padding: 5px 10px; border-radius: 999px;
+  }
+
+  /* areas mini grid */
+  .area-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  .area-cell {
+    background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: var(--r-md); padding: 12px 14px;
+  }
+  .area-cell .k { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .6px; font-weight: 650; }
+  .area-cell .v { font-family: var(--mono); font-size: 21px; font-weight: 700; margin-top: 4px; letter-spacing: -.5px; }
+  .area-cell .v small { font-size: 12px; color: var(--text-faint); }
+  .area-cell.variance { background: var(--accent-2-soft); border-color: #D6E3C8; }
+  .area-cell.variance .v { color: var(--accent-2-deep); }
+
+  .meta-list { display: grid; gap: 0; }
+  .meta-list .mrow {
+    display: flex; justify-content: space-between; gap: 12px;
+    padding: 9px 0; border-bottom: 1px dashed var(--line);
+    font-size: 13px;
+  }
+  .meta-list .mrow:last-child { border-bottom: none; }
+  .meta-list .mk { color: var(--text-soft); }
+  .meta-list .mv { font-weight: 600; text-align: right; }
+  .meta-list .mv.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* validation signatures */
+  .sig-list { display: grid; gap: 10px; margin-top: 4px; }
+  .sig {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: var(--r-md);
+    border: 1px solid var(--line); background: var(--surface-2);
+  }
+  .sig.done { background: var(--accent-2-soft); border-color: #D6E3C8; }
+  .sig-ic {
+    width: 28px; height: 28px; border-radius: 50%; flex: none;
+    display: grid; place-items: center; color: #fff; font-size: 13px;
+    background: var(--line-strong);
+  }
+  .sig.done .sig-ic { background: var(--accent-2); }
+  .sig-meta { flex: 1; line-height: 1.25; }
+  .sig-meta .who { font-weight: 650; font-size: 13px; }
+  .sig-meta .role { font-size: 11.5px; color: var(--text-faint); }
+  .sig-state { font-size: 11.5px; font-weight: 650; }
+  .sig.done .sig-state { color: var(--accent-2-deep); }
+  .sig:not(.done) .sig-state { color: var(--accent-deep); }
+  .sig-summary {
+    display:flex; align-items:center; gap:9px;
+    font-size: 12.5px; color: var(--text-soft); margin-bottom: 4px;
+  }
+
+  /* ===== SOIL PROFILE (signature move) ===== */
+  .soil-card { grid-column: 2; }
+  .soil-hero {
+    background:
+      radial-gradient(120% 80% at 80% 0%, rgba(242,190,85,.3), transparent 60%),
+      linear-gradient(180deg, #FFFDF7, #FBF3E0);
+  }
+  .soil-stage { display: grid; grid-template-columns: 250px 1fr; gap: 0; }
+  @media (max-width: 1180px) { .soil-stage { grid-template-columns: 200px 1fr; } }
+  .profile {
+    position: relative;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md), inset 0 0 0 1px rgba(90,61,36,.12);
+  }
+  .horizon {
+    position: relative;
+    display: flex; align-items: center;
+    padding: 0 14px;
+    color: rgba(255,255,255,.95);
+  }
+  .horizon .hz-label { font-size: 11.5px; font-weight: 700; letter-spacing: .3px; text-shadow: 0 1px 2px rgba(0,0,0,.3); }
+  .horizon .hz-depth { position: absolute; right: 10px; bottom: 6px; font-family: var(--mono); font-size: 10px; opacity: .85; }
+  .hz1 { height: 34px; background: linear-gradient(180deg, #6B492C, var(--h1)); }
+  .hz2 { height: 56px; background: linear-gradient(180deg, var(--h2), #7A4F25); }
+  .hz3 { height: 82px; background: linear-gradient(180deg, var(--h3), #C2922F); }
+  .hz4 { height: 64px; background: linear-gradient(180deg, var(--h4), #9C6B3E); }
+  /* texture speckle via inline gradients */
+  .horizon::before {
+    content: ""; position: absolute; inset: 0; opacity: .22; mix-blend-mode: overlay;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.6) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 60% 70%, rgba(0,0,0,.5) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 80% 20%, rgba(255,255,255,.5) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 38% 80%, rgba(0,0,0,.4) 0 1px, transparent 1.5px);
+    background-size: 26px 26px, 30px 30px, 22px 22px, 34px 34px;
+  }
+
+  /* readings annotations with leader lines */
+  .readings { position: relative; padding: 4px 0 4px 4px; }
+  .reading {
+    position: relative;
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px;
+    margin-left: 18px;
+    border-radius: var(--r-sm);
+  }
+  .reading::before {
+    content: ""; position: absolute; left: -18px; top: 50%;
+    width: 18px; height: 2px; background: var(--line-strong);
+    transform: translateY(-50%);
+  }
+  .reading::after {
+    content: ""; position: absolute; left: -20px; top: 50%;
+    width: 7px; height: 7px; border-radius: 50%;
+    transform: translate(-50%,-50%);
+    background: var(--anchor, var(--line-strong));
+    box-shadow: 0 0 0 2px var(--surface);
+  }
+  .reading .rk { font-weight: 700; font-size: 13px; width: 64px; }
+  .reading .rk .num { color: var(--text); }
+  .reading .rv { font-size: 12px; }
+  .lvl {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 700;
+  }
+  .lvl.low { background: var(--danger-soft); color: var(--danger); }
+  .lvl.mod { background: var(--gold-soft); color: var(--accent-deep); }
+  .lvl.adq { background: var(--accent-2-soft); color: var(--accent-2-deep); }
+  .reading .rsub { font-size: 11px; color: var(--text-faint); }
+
+  /* fertiliser recommendation */
+  .fert {
+    margin-top: 16px;
+    border-radius: var(--r-lg);
+    border: 1px dashed var(--line-strong);
+    background: linear-gradient(120deg, var(--gold-soft), #FCEFD2);
+    padding: 14px 16px;
+    position: relative;
+  }
+  .fert .flow {
+    position: absolute; left: 22px; top: -14px;
+    color: var(--accent-deep); font-size: 18px; line-height: 1;
+  }
+  .fert h4 {
+    margin: 0 0 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--accent-deep); font-weight: 750;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .fert h4 .ico { width: 15px; height: 15px; }
+  .fert-row { display: flex; gap: 10px; }
+  .fert-item {
+    flex: 1;
+    background: rgba(255,255,255,.62);
+    border: 1px solid rgba(185,126,18,.25);
+    border-radius: var(--r-md); padding: 10px 12px;
+  }
+  .fert-item .fn { font-weight: 750; font-size: 13.5px; }
+  .fert-item .fr { font-family: var(--mono); font-size: 12px; color: var(--accent-deep); font-weight: 600; margin-top: 2px; }
+  .fert-item .fl { font-size: 11px; color: var(--text-soft); margin-top: 4px; }
+
+  .hidden-acc {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  @media (max-width: 1080px) {
+    .stat-strip { grid-template-columns: repeat(2,1fr); }
+    .detail-grid { grid-template-columns: 1fr; }
+    .map-card, .soil-card { grid-column: auto; grid-row: auto; }
+  }
+
+  /* ============================================================
+     RESPONSIVE — tablet (<=768) and phone (<=480, down to 360).
+     Desktop rules above are untouched; everything here is additive.
+     ============================================================ */
+
+  /* ---- TABLET & PHONE: off-canvas drawer + single column ---- */
+  @media (max-width: 768px) {
+    /* single-column shell; sidebar leaves the grid flow */
+    .app { grid-template-columns: 1fr; }
+
+    /* sidebar becomes an off-canvas drawer */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      height: 100dvh;
+      width: 270px;
+      max-width: 84vw;
+      z-index: 60;
+      transform: translateX(-100%);
+      transition: transform .26s ease;
+      box-shadow: var(--shadow-lg);
+      overflow-y: auto;
+    }
+    .app.drawer-open .sidebar { transform: translateX(0); }
+
+    /* dimmed overlay */
+    .drawer-overlay {
+      display: block;
+      position: fixed; inset: 0;
+      z-index: 50;
+      background: rgba(51,41,26,.42);
+      opacity: 0;
+      transition: opacity .26s ease;
+    }
+    .app.drawer-open .drawer-overlay { opacity: 1; }
+
+    /* hamburger visible in the top bar */
+    .hamburger {
+      display: inline-grid;
+      place-items: center;
+      width: 40px; height: 40px;
+      flex: none;
+      border: 1px solid var(--line-strong);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+    .hamburger svg { width: 20px; height: 20px; }
+    .hamburger:hover { background: var(--surface-2); }
+
+    /* top bar condenses */
+    .topbar { gap: 10px; padding: 10px 16px; flex-wrap: wrap; }
+    .search { order: 3; flex-basis: 100%; max-width: none; min-width: 0; }
+    .topbar-spacer { display: none; }
+    .season { margin-left: auto; }
+
+    /* content padding tightens */
+    .content { padding: 18px 16px 48px; }
+
+    /* detail grid collapses (mirrors the 1080 behaviour, kept explicit) */
+    .detail-grid { grid-template-columns: 1fr; }
+    .map-card, .soil-card { grid-column: auto; grid-row: auto; }
+
+    /* stat strip -> 2 cols on tablet */
+    .stat-strip { grid-template-columns: repeat(2,1fr); }
+
+    /* tap targets */
+    .nav-item { padding: 11px 12px; }
+    .seg button { padding: 8px 14px; }
+  }
+
+  /* tablet-only map height so the canvas isn't too tall */
+  @media (max-width: 768px) {
+    .map-canvas-holder { aspect-ratio: auto; height: 340px; }
+  }
+
+  /* ---- soil profile stays legible on narrow widths ---- */
+  @media (max-width: 768px) {
+    .soil-stage { grid-template-columns: 150px 1fr; gap: 4px; }
+    .readings { padding-left: 2px; }
+    .reading { margin-left: 16px; gap: 8px; padding: 7px 8px; }
+    .reading::before { left: -16px; width: 16px; }
+    .reading::after { left: -18px; }
+    .reading .rk { width: 52px; font-size: 12.5px; }
+  }
+
+  /* ---- restyle Fields rows as stacked cards on small phones ---- */
+  @media (max-width: 560px) {
+    .table-scroll { overflow-x: visible; }
+    table.fields { min-width: 0; display: block; }
+    table.fields thead { display: none; }
+    table.fields tbody { display: block; }
+
+    tr.frow {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-auto-rows: min-content;
+      gap: 8px 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    tr.frow td { padding: 0 !important; }
+
+    /* first cell (code+name) spans the full top row, chevron sits right */
+    tr.frow td:nth-child(1) { grid-column: 1; grid-row: 1; }
+    tr.frow td:nth-child(10) { grid-column: 2; grid-row: 1; justify-self: end; }
+
+    /* AMCOS line under the title, full width */
+    tr.frow td:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+
+    /* crop + status share a row */
+    tr.frow td:nth-child(3) { grid-column: 1; grid-row: 3; }
+    tr.frow td:nth-child(9) { grid-column: 2; grid-row: 3; justify-self: end; }
+
+    /* areas: declared / calc inline with labels */
+    tr.frow td:nth-child(4),
+    tr.frow td:nth-child(5) {
+      grid-row: 4;
+      text-align: left !important;
+    }
+    tr.frow td:nth-child(4) { grid-column: 1; }
+    tr.frow td:nth-child(5) { grid-column: 2; justify-self: end; }
+    tr.frow td:nth-child(4)::before { content: "Declared "; color: var(--text-faint); font-size: 11px; }
+    tr.frow td:nth-child(5)::before { content: "Calc. "; color: var(--text-faint); font-size: 11px; }
+
+    /* NDVI bar full width */
+    tr.frow td:nth-child(6) { grid-column: 1 / -1; grid-row: 5; }
+    tr.frow td:nth-child(6) .ndvi { min-width: 0; }
+
+    /* sample badge + validation pips share a row */
+    tr.frow td:nth-child(7) { grid-column: 1; grid-row: 6; }
+    tr.frow td:nth-child(8) { grid-column: 2; grid-row: 6; justify-self: end; }
+
+    /* keep card hover/focus tidy on the grid layout */
+    tr.frow:focus-visible { outline-offset: -3px; }
+  }
+
+  /* ---- phone tightening (<=480, works to 360) ---- */
+  @media (max-width: 480px) {
+    .page-title { font-size: 22px; }
+    .hero-name { font-size: 23px; }
+    .detail-hero { padding: 18px 16px; }
+
+    /* hero header stacks gracefully */
+    .hero-top { flex-wrap: wrap; gap: 12px; }
+    .hero-rail { width: 100%; height: 7px; min-height: 0; align-self: auto;
+      background: linear-gradient(to right,
+        var(--h1) 0 22%, var(--h2) 22% 46%, var(--h3) 46% 76%, var(--h4) 76% 100%); }
+    .hero-actions { flex-basis: 100%; }
+    .hero-actions .btn { flex: 1; justify-content: center; }
+
+    /* page head + actions stack, buttons full width */
+    .page-head { gap: 12px; }
+    .head-actions { width: 100%; }
+    .head-actions .btn { flex: 1; justify-content: center; min-height: 40px; }
+
+    /* metric grids -> single/2-col */
+    .stat-strip { grid-template-columns: 1fr; gap: 12px; }
+    .area-row { grid-template-columns: 1fr; }
+    .fert-row { flex-direction: column; }
+
+    /* map a touch shorter on phones */
+    .map-canvas-holder { height: 260px; }
+
+    /* season chip can wrap text shorter; keep tap target */
+    .season { padding: 9px 12px; min-height: 40px; }
+    .user-chip { padding: 6px 10px 6px 6px; min-height: 40px; max-width: 46%; }
+    .user-meta { min-width: 0; overflow: hidden; }
+    .user-name, .user-org { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* soil readings: let value text wrap instead of overflowing */
+    .reading { flex-wrap: wrap; }
+    .reading .rv { flex: 1; min-width: 0; }
+  }
+
+  /* ---- very small phones (360) — guarantee no horizontal scroll ---- */
+  @media (max-width: 380px) {
+    .soil-stage { grid-template-columns: 120px 1fr; }
+    .hero-code { font-size: 12px; }
+    .map-legend { font-size: 10px; padding: 6px 8px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+</style>
+
+<div class="app view-list" id="app">
+  <div class="drawer-overlay" id="drawerOverlay" hidden></div>
+  <!-- ============ SIDEBAR ============ -->
+  <nav class="sidebar" id="sidebar" aria-label="Primary">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 21c0-5 0-8-3-11" stroke="#3A2C0A" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M9 12c-2.2-.2-3.6-1.6-4-4 2.6-.2 4.2.8 4.6 3.4" fill="#3A2C0A" opacity=".9"/>
+          <path d="M12 21c0-6 1-9 4.5-12C18 12 16 17 12.6 18.2" fill="#3A2C0A"/>
+        </svg>
+      </span>
+      <div>
+        <div class="brand-name">Footprint Tech</div>
+        <div class="brand-sub">Thinslice · Ops</div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex:1; min-height:0;">
+      <div class="horizon-rail" aria-hidden="true"></div>
+      <div class="nav" style="flex:1;">
+        <div class="nav-label">Value chain</div>
+        <button class="nav-item active" aria-current="page">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4"/></svg>
+          Fields
+        </button>
+        <button class="nav-item">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg>
+          Properties
+        </button>
+        <button class="nav-item">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21V8l6-4 6 4v13"/><path d="M15 21V11l6 0v10M3 21h18"/></svg>
+          Organizations
+        </button>
+        <button class="nav-item">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-5 9 5v11H3z"/><path d="M3 9l9 5 9-5"/></svg>
+          Warehouses
+        </button>
+        <div class="nav-label">Operations</div>
+        <button class="nav-item">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          Seasons
+        </button>
+        <button class="nav-item">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5h10v14H5V9"/><path d="M5 5h0M8 9h8M8 13h8M8 17h5"/></svg>
+          Input requests
+        </button>
+        <button class="nav-item">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h11v8H3z"/><path d="M14 9h4l3 3v3h-7z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+          Deliveries
+        </button>
+        <button class="nav-item">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="9" r="3"/><circle cx="17" cy="11" r="2.5"/><path d="M3 19c0-3 2-5 5-5s5 2 5 5M14 19c0-2 1.5-3.5 3-3.5s3 1.5 3 3.5"/></svg>
+          Counterparties
+        </button>
+      </div>
+    </div>
+
+    <div class="nav-foot">
+      <span class="dot-live" aria-hidden="true"></span>
+      Synced · 09:42 EAT
+    </div>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="topbar">
+      <button class="hamburger" id="hamburger" type="button" aria-label="Open navigation menu" aria-controls="sidebar" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <label class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Search fields, AMCOS, season…" aria-label="Search fields, AMCOS, season" />
+      </label>
+      <div class="topbar-spacer"></div>
+      <button class="season">
+        <svg class="leaf" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 18c0-8 6-13 14-13 0 9-5 14-13 14 0-3 2-6 6-8"/></svg>
+        2026 Long Rains
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <button class="user-chip">
+        <span class="avatar" aria-hidden="true">MM</span>
+        <span class="user-meta">
+          <span class="user-name">M. Mwakalinga</span><br/>
+          <span class="user-org">TCJE</span>
+        </span>
+      </button>
+    </header>
+
+    <main class="content">
+      <!-- ============ LIST VIEW ============ -->
+      <section class="list" aria-label="Fields list">
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">Fields</h1>
+            <p class="page-sub">Igalula, Uyui, Sikonge, Urambo, Nzega, Kaliua &amp; Tabora Central AMCOS · 2026 Long Rains</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+              Filter
+            </button>
+            <button class="btn btn-primary">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+              Register field
+            </button>
+          </div>
+        </div>
+
+        <div class="stat-strip">
+          <div class="stat">
+            <div class="k">Fields mapped</div>
+            <div class="v">10</div>
+            <div class="d up">7 active this season</div>
+          </div>
+          <div class="stat">
+            <div class="k">Declared area</div>
+            <div class="v num">209.8 <small>ha</small></div>
+            <div class="d">Calc. 210.5 ha · +0.3%</div>
+          </div>
+          <div class="stat">
+            <div class="k">Mean NDVI</div>
+            <div class="v num" style="color:var(--accent-2-deep)">0.62</div>
+            <div class="d up">Ripening well</div>
+          </div>
+          <div class="stat">
+            <div class="k">Soil samples due</div>
+            <div class="v" style="color:var(--warn)">3</div>
+            <div class="d">2 overdue · act soon</div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-toolbar">
+            <div class="seg" role="group" aria-label="Filter by status">
+              <button aria-pressed="true">All</button>
+              <button aria-pressed="false">Active</button>
+              <button aria-pressed="false">Draft</button>
+              <button aria-pressed="false">Suspended</button>
+            </div>
+            <span class="toolbar-count">Showing 10 of 10 fields</span>
+          </div>
+          <div class="table-scroll">
+            <table class="fields">
+              <thead>
+                <tr>
+                  <th scope="col">Field</th>
+                  <th scope="col">AMCOS</th>
+                  <th scope="col">Crop</th>
+                  <th scope="col" class="r">Declared</th>
+                  <th scope="col" class="r">Calc.</th>
+                  <th scope="col">NDVI</th>
+                  <th scope="col">Soil sample</th>
+                  <th scope="col">Validation</th>
+                  <th scope="col">Status</th>
+                  <th scope="col"><span class="hidden-acc">Open</span></th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ DETAIL VIEW ============ -->
+      <section class="detail" aria-label="Field detail" aria-hidden="true">
+        <button class="back-btn" id="backBtn">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 6-6 6 6 6"/></svg>
+          Back to fields
+        </button>
+
+        <div class="detail-hero">
+          <div class="hero-top">
+            <span class="hero-rail" aria-hidden="true"></span>
+            <div class="hero-id">
+              <span class="hero-code"><span id="d-code">IGN-B7</span></span>
+              <h2 class="hero-name" id="d-name">Igalula North B-7</h2>
+              <div class="hero-breadcrumb">
+                <span>Property <b id="d-prop">Igalula Estate</b></span><span class="sep">·</span>
+                <span>Region <b id="d-region">Igalula Cell</b></span><span class="sep">·</span>
+                <span>AMCOS <b id="d-amcos">Igalula</b></span><span class="sep">·</span>
+                <span><b>Tabora, Tanzania</b></span><span class="sep">·</span>
+                <span>Season <b>2026 Long Rains</b></span>
+              </div>
+              <span class="hero-status"><span class="sd" id="d-statusdot"></span><span id="d-status">Active</span></span>
+            </div>
+            <div class="hero-actions">
+              <button class="btn">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                Edit field
+              </button>
+              <button class="btn btn-primary">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+                Validate
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <!-- MAP -->
+          <section class="card map-card">
+            <div class="card-head">
+              <span class="hd-ico green" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></span>
+              <div><div class="eyebrow">Parcel</div><h3>Field boundary</h3></div>
+            </div>
+            <div class="card-body" style="padding-bottom:0;">
+              <div class="map-wrap card" style="box-shadow:none; border-radius:var(--r-lg); overflow:hidden;">
+                <div class="map-canvas-holder">
+                  <canvas id="map" aria-label="Map of Igalula North B-7 field boundary with neighbouring parcels"></canvas>
+                  <div class="map-legend" aria-hidden="true">
+                    <div class="lg"><span class="sw" style="background:linear-gradient(var(--accent),var(--accent-deep))"></span> This field</div>
+                    <div class="lg"><span class="sw" style="background:#D8CBA8"></span> Neighbouring parcels</div>
+                    <div class="lg"><span class="sw" style="background:none;border:2px solid var(--accent-2-deep);height:7px;border-radius:50%;width:7px"></span> Centroid</div>
+                  </div>
+                  <div class="coord-pill" aria-hidden="true">-5.0238, 32.8114 · 7 vertices</div>
+                </div>
+                <div class="map-cap">
+                  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5 8 12 8 12s8-7 8-12a8 8 0 0 0-8-8z"/></svg>
+                  Styled preview · live OpenStreetMap tiles load in the production app · © OpenStreetMap contributors
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-head" style="padding:0 0 12px;">
+                <span class="hd-ico" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg></span>
+                <div><div class="eyebrow">Measured</div><h3>Areas</h3></div>
+              </div>
+              <div class="area-row">
+                <div class="area-cell"><div class="k">Declared</div><div class="v">24.6 <small>ha</small></div></div>
+                <div class="area-cell"><div class="k">Calculated</div><div class="v">25.1 <small>ha</small></div></div>
+                <div class="area-cell variance"><div class="k">Variance</div><div class="v">+0.5 <small>ha</small></div><div class="k" style="margin-top:2px;color:var(--accent-2-deep)">+2% · within tolerance</div></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- SOIL PROFILE (signature) -->
+          <section class="card soil-card soil-hero">
+            <div class="card-head">
+              <span class="hd-ico" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/><path d="M4 4v16M20 4v16"/></svg></span>
+              <div><div class="eyebrow">Agronomy · sampled 12 Mar 2026</div><h3>Soil profile &amp; readings</h3></div>
+            </div>
+            <div class="card-body">
+              <div class="soil-stage">
+                <div class="profile" aria-hidden="true">
+                  <div class="horizon hz1"><span class="hz-label">Humus / O</span><span class="hz-depth">0–8 cm</span></div>
+                  <div class="horizon hz2"><span class="hz-label">Topsoil / A</span><span class="hz-depth">8–28 cm</span></div>
+                  <div class="horizon hz3"><span class="hz-label">Golden subsoil / B</span><span class="hz-depth">28–62 cm</span></div>
+                  <div class="horizon hz4"><span class="hz-label">Clay / C</span><span class="hz-depth">62–100 cm</span></div>
+                </div>
+                <div class="readings">
+                  <div class="reading" style="--anchor:var(--h2)">
+                    <div class="rk">pH <span class="num">5.8</span></div>
+                    <div class="rv"><span class="lvl mod">Slightly acid</span><div class="rsub">A horizon · lime if &lt;5.5</div></div>
+                  </div>
+                  <div class="reading" style="--anchor:var(--h2)">
+                    <div class="rk">N</div>
+                    <div class="rv"><span class="lvl low">Low</span><div class="rsub">Nitrogen · topsoil deficit</div></div>
+                  </div>
+                  <div class="reading" style="--anchor:var(--h3)">
+                    <div class="rk">P</div>
+                    <div class="rv"><span class="lvl mod">Moderate</span><div class="rsub">Phosphorus · subsoil B</div></div>
+                  </div>
+                  <div class="reading" style="--anchor:var(--h4)">
+                    <div class="rk">K</div>
+                    <div class="rv"><span class="lvl adq">Adequate</span><div class="rsub">Potassium · clay-held</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="fert">
+                <span class="flow" aria-hidden="true">↳</span>
+                <h4>
+                  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v6M9 5l3-3 3 3"/><path d="M5 12c0 5 3 9 7 9s7-4 7-9c0-3-2-5-7-5S5 9 5 12z"/></svg>
+                  Fertiliser recommendation
+                </h4>
+                <div class="fert-row">
+                  <div class="fert-item">
+                    <div class="fn">NPK 10-18-24</div>
+                    <div class="fr">150 kg/ha</div>
+                    <div class="fl">Basal · at planting</div>
+                  </div>
+                  <div class="fert-item">
+                    <div class="fn">CAN</div>
+                    <div class="fr">180 kg/ha</div>
+                    <div class="fl">Top-dress · 4–6 wks after</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- AGRONOMY + VALIDITY -->
+          <section class="card">
+            <div class="card-head">
+              <span class="hd-ico green" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M5 18c0-8 6-13 14-13 0 9-5 14-13 14 0-3 2-6 6-8"/></svg></span>
+              <div><div class="eyebrow">Vegetation &amp; validity</div><h3>Crop health</h3></div>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+                <div style="flex:1;">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-soft);margin-bottom:6px;">
+                    <span>NDVI · captured 18 Jun 2026</span><span class="num" style="font-weight:700;color:var(--accent-2-deep);font-size:14px;">0.71</span>
+                  </div>
+                  <div class="ndvi-track" style="height:11px;"><div class="ndvi-fill" style="width:71%"></div></div>
+                  <div style="font-size:11px;color:var(--text-faint);margin-top:5px;">Vigorous canopy · maize-gold harvest window approaching</div>
+                </div>
+              </div>
+              <div class="meta-list">
+                <div class="mrow"><span class="mk">Crop</span><span class="mv">Flue-cured tobacco</span></div>
+                <div class="mrow"><span class="mk">Valid since</span><span class="mv mono">2026-01-01</span></div>
+                <div class="mrow"><span class="mk">Valid until</span><span class="mv mono">2026-12-31</span></div>
+                <div class="mrow"><span class="mk">Centroid</span><span class="mv mono">-5.0238, 32.8114</span></div>
+                <div class="mrow"><span class="mk">Boundary vertices</span><span class="mv mono">7</span></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- VALIDATION -->
+          <section class="card">
+            <div class="card-head">
+              <span class="hd-ico" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+              <div><div class="eyebrow">Biometric delivery sign-off</div><h3>Validation · 2 of 3</h3></div>
+            </div>
+            <div class="card-body">
+              <div class="sig-summary">
+                <span class="pips" aria-hidden="true"><span class="pip on">✓</span><span class="pip on">✓</span><span class="pip off"></span><span class="frac">2/3</span></span>
+                One signature left before delivery clears
+              </div>
+              <div class="sig-list">
+                <div class="sig done">
+                  <span class="sig-ic" aria-hidden="true">✓</span>
+                  <div class="sig-meta"><div class="who">Farmer</div><div class="role">Fingerprint captured · 18 Jun 2026</div></div>
+                  <div class="sig-state">Signed</div>
+                </div>
+                <div class="sig done">
+                  <span class="sig-ic" aria-hidden="true">✓</span>
+                  <div class="sig-meta"><div class="who">AMCOS officer</div><div class="role">Igalula AMCOS · 18 Jun 2026</div></div>
+                  <div class="sig-state">Signed</div>
+                </div>
+                <div class="sig">
+                  <span class="sig-ic" aria-hidden="true">○</span>
+                  <div class="sig-meta"><div class="who">TCJE rep</div><div class="role">Awaiting field visit</div></div>
+                  <div class="sig-state">Pending</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var SOIL_CHIP = { humus: "#5A3D24", topsoil: "#8A5A2A", subsoil: "#D2A23F", clay: "#B07C4C" };
+
+  var FIELDS = [
+    { code:"IGN-B7", name:"Igalula North B-7", amcos:"Igalula AMCOS", crop:"Flue-cured tobacco", dec:24.6, calc:25.1, ndvi:0.71, sample:"Sampled", val:2, status:"Active", soil:"topsoil", prop:"Igalula Estate", region:"Igalula Cell", amcosShort:"Igalula" },
+    { code:"UYU-A3", name:"Uyui Ridge A-3", amcos:"Uyui AMCOS", crop:"Maize", dec:18.2, calc:17.9, ndvi:0.66, sample:"Pending", val:3, status:"Active", soil:"subsoil", prop:"Uyui Estate", region:"Uyui Cell", amcosShort:"Uyui" },
+    { code:"SIK-C1", name:"Sikonge Block C-1", amcos:"Sikonge AMCOS", crop:"Cotton", dec:31.5, calc:32.0, ndvi:0.58, sample:"Sampled", val:0, status:"Draft", soil:"clay", prop:"Sikonge Estate", region:"Sikonge Cell", amcosShort:"Sikonge" },
+    { code:"URA-D9", name:"Urambo Flats D-9", amcos:"Urambo AMCOS", crop:"Sunflower", dec:12.8, calc:12.6, ndvi:0.49, sample:"Overdue", val:1, status:"Active", soil:"humus", prop:"Urambo Estate", region:"Urambo Cell", amcosShort:"Urambo" },
+    { code:"NZE-B2", name:"Nzega East B-2", amcos:"Nzega AMCOS", crop:"Flue-cured tobacco", dec:27.4, calc:28.1, ndvi:0.74, sample:"Sampled", val:3, status:"Active", soil:"topsoil", prop:"Nzega Estate", region:"Nzega Cell", amcosShort:"Nzega" },
+    { code:"IGA-F4", name:"Igalula South F-4", amcos:"Igalula AMCOS", crop:"Groundnut", dec:9.6, calc:9.4, ndvi:0.61, sample:"Sampled", val:2, status:"Active", soil:"subsoil", prop:"Igalula Estate", region:"Igalula Cell", amcosShort:"Igalula" },
+    { code:"KAL-A7", name:"Kaliua Plain A-7", amcos:"Kaliua AMCOS", crop:"Sorghum", dec:15.0, calc:15.3, ndvi:0.53, sample:"Pending", val:0, status:"Draft", soil:"clay", prop:"Kaliua Estate", region:"Kaliua Cell", amcosShort:"Kaliua" },
+    { code:"TAB-E5", name:"Tabora West E-5", amcos:"Tabora Central AMCOS", crop:"Maize", dec:22.1, calc:21.7, ndvi:0.69, sample:"Sampled", val:2, status:"Active", soil:"topsoil", prop:"Tabora West Estate", region:"Tabora Central Cell", amcosShort:"Tabora Central" },
+    { code:"URA-B1", name:"Urambo North B-1", amcos:"Urambo AMCOS", crop:"Tobacco", dec:19.9, calc:20.4, ndvi:0.72, sample:"Sampled", val:3, status:"Active", soil:"humus", prop:"Urambo Estate", region:"Urambo Cell", amcosShort:"Urambo" },
+    { code:"SIK-D8", name:"Sikonge Far D-8", amcos:"Sikonge AMCOS", crop:"Cotton", dec:28.7, calc:29.0, ndvi:0.45, sample:"Overdue", val:0, status:"Suspended", soil:"clay", prop:"Sikonge Estate", region:"Sikonge Cell", amcosShort:"Sikonge" }
+  ];
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+
+  function sampleBadge(s){
+    var cls = s === "Sampled" ? "b-sampled" : (s === "Pending" ? "b-pending" : "b-overdue");
+    return '<span class="badge '+cls+'"><span class="bd"></span>'+esc(s)+'</span>';
+  }
+  function statusEl(s){
+    var cls = s === "Active" ? "s-active" : (s === "Draft" ? "s-draft" : "s-suspended");
+    return '<span class="status '+cls+'"><span class="sd"></span>'+esc(s)+'</span>';
+  }
+  function pips(n){
+    var out = '<span class="pips">';
+    for (var i=0;i<3;i++){ out += '<span class="pip '+(i<n?'on':'off')+'">'+(i<n?'✓':'')+'</span>'; }
+    out += '<span class="frac">'+n+'/3</span></span>';
+    return out;
+  }
+
+  var tbody = document.getElementById("rows");
+  FIELDS.forEach(function (f, idx) {
+    var tr = document.createElement("tr");
+    tr.className = "frow";
+    tr.setAttribute("tabindex", "0");
+    tr.setAttribute("role", "button");
+    tr.setAttribute("aria-label", "Open field " + f.code + " " + f.name);
+    tr.innerHTML =
+      '<td><div class="code-cell"><span class="chip-soil" style="background:'+SOIL_CHIP[f.soil]+'"></span>'+
+        '<span class="code-txt"><div class="code">'+esc(f.code)+'</div><div class="fname">'+esc(f.name)+'</div></span></div></td>'+
+      '<td style="font-size:12.5px;color:var(--text-soft)">'+esc(f.amcos)+'</td>'+
+      '<td><span class="crop-tag"><span class="seed"></span>'+esc(f.crop)+'</span></td>'+
+      '<td class="r"><span class="ha-cell">'+f.dec.toFixed(1)+'</span></td>'+
+      '<td class="r"><span class="ha-cell calc">'+f.calc.toFixed(1)+'</span></td>'+
+      '<td><div class="ndvi"><div class="ndvi-track"><div class="ndvi-fill" style="width:'+Math.round(f.ndvi*100)+'%"></div></div><span class="ndvi-val">'+f.ndvi.toFixed(2)+'</span></div></td>'+
+      '<td>'+sampleBadge(f.sample)+'</td>'+
+      '<td>'+pips(f.val)+'</td>'+
+      '<td>'+statusEl(f.status)+'</td>'+
+      '<td class="r"><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></td>';
+    function open(){ openDetail(idx); }
+    tr.addEventListener("click", open);
+    tr.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+    });
+    tbody.appendChild(tr);
+  });
+
+  var app = document.getElementById("app");
+  var listSec = document.querySelector(".list");
+  var detailSec = document.querySelector(".detail");
+  var content = document.querySelector(".content");
+
+  function openDetail(idx){
+    var f = FIELDS[idx];
+    document.getElementById("d-code").textContent = f.code;
+    document.getElementById("d-name").textContent = f.name;
+    document.getElementById("d-prop").textContent = f.prop;
+    document.getElementById("d-region").textContent = f.region;
+    document.getElementById("d-amcos").textContent = f.amcosShort;
+    document.getElementById("d-status").textContent = f.status;
+    var dot = document.getElementById("d-statusdot");
+    dot.style.background = f.status === "Active" ? "var(--accent-2)" : (f.status === "Draft" ? "var(--text-faint)" : "var(--danger)");
+    var hs = dot.parentElement;
+    hs.style.borderColor = f.status === "Suspended" ? "rgba(181,64,46,.35)" : "rgba(78,140,63,.3)";
+    hs.style.color = f.status === "Suspended" ? "var(--danger)" : "var(--accent-2-deep)";
+
+    app.classList.remove("view-list");
+    app.classList.add("view-detail");
+    listSec.setAttribute("aria-hidden","true");
+    detailSec.setAttribute("aria-hidden","false");
+    content.scrollIntoView({ block: "start" });
+    window.scrollTo(0,0);
+    requestAnimationFrame(drawMap);
+    document.getElementById("backBtn").focus();
+  }
+
+  function backToList(){
+    app.classList.remove("view-detail");
+    app.classList.add("view-list");
+    listSec.setAttribute("aria-hidden","false");
+    detailSec.setAttribute("aria-hidden","true");
+    window.scrollTo(0,0);
+  }
+  document.getElementById("backBtn").addEventListener("click", backToList);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && app.classList.contains("view-detail")) backToList();
+  });
+
+  // segmented control + season + chips are presentational toggles
+  document.querySelectorAll(".seg").forEach(function (seg) {
+    seg.addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      seg.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed","false"); });
+      b.setAttribute("aria-pressed","true");
+    });
+  });
+
+  // ============ OFF-CANVAS DRAWER ============
+  var hamburger = document.getElementById("hamburger");
+  var overlay = document.getElementById("drawerOverlay");
+  var sidebar = document.getElementById("sidebar");
+
+  function openDrawer(){
+    app.classList.add("drawer-open");
+    hamburger.setAttribute("aria-expanded","true");
+    overlay.hidden = false;
+    // move focus into the drawer for keyboard users
+    var firstNav = sidebar.querySelector(".nav-item");
+    if (firstNav) firstNav.focus();
+  }
+  function closeDrawer(returnFocus){
+    if (!app.classList.contains("drawer-open")) return;
+    app.classList.remove("drawer-open");
+    hamburger.setAttribute("aria-expanded","false");
+    overlay.hidden = true;
+    if (returnFocus !== false) hamburger.focus();
+  }
+  function drawerIsActive(){
+    // only acts as a drawer when the hamburger is visible (mobile widths)
+    return getComputedStyle(hamburger).display !== "none";
+  }
+
+  hamburger.addEventListener("click", function(){
+    if (app.classList.contains("drawer-open")) closeDrawer(); else openDrawer();
+  });
+  overlay.addEventListener("click", function(){ closeDrawer(); });
+  // close on nav activation
+  sidebar.querySelectorAll(".nav-item").forEach(function(item){
+    item.addEventListener("click", function(){ if (drawerIsActive()) closeDrawer(false); });
+  });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape") closeDrawer();
+  });
+  // if viewport grows past mobile, ensure drawer state is reset
+  window.addEventListener("resize", function(){
+    if (!drawerIsActive()) closeDrawer(false);
+  });
+
+  // ============ MAP CANVAS ============
+  var FIELD_POLY = [
+    [32.8090,-5.0210],[32.8138,-5.0205],[32.8156,-5.0228],[32.8149,-5.0258],
+    [32.8118,-5.0271],[32.8086,-5.0262],[32.8074,-5.0238],[32.8090,-5.0210]
+  ];
+  var CENTROID = [32.8114, -5.0238];
+
+  // neighbouring parcels (lon,lat) — hand-placed around the field
+  var NEIGHBOURS = [
+    [[32.8156,-5.0228],[32.8186,-5.0222],[32.8198,-5.0246],[32.8170,-5.0262],[32.8149,-5.0258]],
+    [[32.8138,-5.0205],[32.8168,-5.0196],[32.8190,-5.0212],[32.8156,-5.0228]],
+    [[32.8074,-5.0238],[32.8086,-5.0262],[32.8060,-5.0278],[32.8040,-5.0252],[32.8052,-5.0228]],
+    [[32.8090,-5.0210],[32.8074,-5.0238],[32.8052,-5.0228],[32.8056,-5.0198],[32.8082,-5.0188]],
+    [[32.8118,-5.0271],[32.8086,-5.0262],[32.8092,-5.0292],[32.8124,-5.0300],[32.8140,-5.0282]],
+    [[32.8149,-5.0258],[32.8170,-5.0262],[32.8158,-5.0292],[32.8140,-5.0282],[32.8118,-5.0271]]
+  ];
+
+  var canvas = document.getElementById("map");
+  var ctx = canvas.getContext("2d");
+
+  function computeBounds(){
+    var all = FIELD_POLY.slice();
+    NEIGHBOURS.forEach(function (p) { all = all.concat(p); });
+    var minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+    all.forEach(function (pt) {
+      if (pt[0]<minX) minX=pt[0]; if (pt[0]>maxX) maxX=pt[0];
+      if (pt[1]<minY) minY=pt[1]; if (pt[1]>maxY) maxY=pt[1];
+    });
+    var padX=(maxX-minX)*0.12, padY=(maxY-minY)*0.12;
+    return { minX:minX-padX, maxX:maxX+padX, minY:minY-padY, maxY:maxY+padY };
+  }
+
+  function drawMap(){
+    if (!canvas.clientWidth) return;
+    var dpr = window.devicePixelRatio || 1;
+    var cw = canvas.clientWidth, ch = canvas.clientHeight;
+    canvas.width = Math.round(cw*dpr);
+    canvas.height = Math.round(ch*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,cw,ch);
+
+    var b = computeBounds();
+    var spanX = b.maxX-b.minX, spanY = b.maxY-b.minY;
+    var scale = Math.min(cw/spanX, ch/spanY);
+    var drawW = spanX*scale, drawH = spanY*scale;
+    var offX = (cw-drawW)/2, offY = (ch-drawH)/2;
+
+    function px(pt){
+      var x = offX + (pt[0]-b.minX)*scale;
+      var y = offY + (b.maxY-pt[1])*scale; // invert lat
+      return [x,y];
+    }
+
+    // background — sunlit field wash with subtle furrows
+    var g = ctx.createLinearGradient(0,0,cw,ch);
+    g.addColorStop(0,"#F6EED8"); g.addColorStop(0.55,"#EFE6CB"); g.addColorStop(1,"#E9DCBB");
+    ctx.fillStyle = g; ctx.fillRect(0,0,cw,ch);
+
+    ctx.save();
+    ctx.globalAlpha = 0.10; ctx.strokeStyle = "#B07C4C"; ctx.lineWidth = 1;
+    for (var i=-ch; i<cw; i+=16){
+      ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i+ch,ch); ctx.stroke();
+    }
+    ctx.restore();
+
+    // neighbouring parcels
+    NEIGHBOURS.forEach(function (poly) {
+      ctx.beginPath();
+      poly.forEach(function (pt,i){ var p=px(pt); i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]); });
+      ctx.closePath();
+      ctx.fillStyle = "rgba(176,124,76,0.14)";
+      ctx.fill();
+      ctx.lineWidth = 1; ctx.strokeStyle = "rgba(138,90,42,0.45)";
+      ctx.setLineDash([4,3]); ctx.stroke(); ctx.setLineDash([]);
+    });
+
+    // main field — golden fill + soft glow
+    ctx.beginPath();
+    FIELD_POLY.forEach(function (pt,i){ var p=px(pt); i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]); });
+    ctx.closePath();
+    ctx.save();
+    ctx.shadowColor = "rgba(185,126,18,0.45)"; ctx.shadowBlur = 18;
+    var fg = ctx.createLinearGradient(0,offY,0,offY+drawH);
+    fg.addColorStop(0,"rgba(242,190,85,0.55)"); fg.addColorStop(1,"rgba(224,161,42,0.42)");
+    ctx.fillStyle = fg; ctx.fill();
+    ctx.restore();
+    ctx.lineWidth = 2.5; ctx.strokeStyle = "#B97E12"; ctx.lineJoin="round"; ctx.stroke();
+
+    // vertices
+    FIELD_POLY.slice(0,-1).forEach(function (pt){
+      var p = px(pt);
+      ctx.beginPath(); ctx.arc(p[0],p[1],3,0,Math.PI*2);
+      ctx.fillStyle="#FFFDF7"; ctx.fill();
+      ctx.lineWidth=1.5; ctx.strokeStyle="#B97E12"; ctx.stroke();
+    });
+
+    // centroid marker
+    var c = px(CENTROID);
+    ctx.beginPath(); ctx.arc(c[0],c[1],7,0,Math.PI*2);
+    ctx.fillStyle="rgba(78,140,63,0.18)"; ctx.fill();
+    ctx.beginPath(); ctx.arc(c[0],c[1],4,0,Math.PI*2);
+    ctx.fillStyle="#3A6B2F"; ctx.fill();
+    ctx.lineWidth=2; ctx.strokeStyle="#FFFDF7"; ctx.stroke();
+
+    // ===== overlays: scale bar =====
+    var degPerPx = spanX/drawW;             // degrees of lon per px
+    var barDeg = 0.001;                      // ~110 m here
+    var barPx = barDeg/degPerPx;
+    var bx = 14, by = ch-20;
+    ctx.lineWidth = 3; ctx.strokeStyle = "#33291A"; ctx.lineCap="butt";
+    ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+barPx,by); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bx,by-4); ctx.lineTo(bx,by+4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bx+barPx,by-4); ctx.lineTo(bx+barPx,by+4); ctx.stroke();
+    ctx.fillStyle = "#33291A"; ctx.font = "600 10px " + "ui-monospace, Menlo, Consolas, monospace";
+    ctx.textAlign="left"; ctx.textBaseline="bottom";
+    ctx.fillText("0.001° ≈ 110 m", bx, by-7);
+
+    // ===== north arrow =====
+    var nx = cw-26, ny = 30;
+    ctx.save();
+    ctx.translate(nx,ny);
+    ctx.beginPath();
+    ctx.moveTo(0,-13); ctx.lineTo(6,8); ctx.lineTo(0,3); ctx.lineTo(-6,8); ctx.closePath();
+    ctx.fillStyle="#33291A"; ctx.fill();
+    ctx.fillStyle="#B97E12";
+    ctx.beginPath(); ctx.moveTo(0,-13); ctx.lineTo(6,8); ctx.lineTo(0,3); ctx.closePath(); ctx.fill();
+    ctx.fillStyle="#33291A"; ctx.font="700 10px " + "ui-monospace, Menlo, monospace";
+    ctx.textAlign="center"; ctx.textBaseline="bottom";
+    ctx.fillText("N", 0, -14);
+    ctx.restore();
+
+    // ===== attribution =====
+    ctx.font = "10px system-ui, sans-serif";
+    ctx.textAlign="right"; ctx.textBaseline="bottom";
+    var attr = "© OpenStreetMap contributors";
+    var w = ctx.measureText(attr).width;
+    ctx.fillStyle = "rgba(255,253,247,0.82)";
+    ctx.fillRect(cw-w-12, ch-18, w+10, 15);
+    ctx.fillStyle = "#5E4A2A";
+    ctx.fillText(attr, cw-6, ch-5);
+  }
+
+  var rt;
+  window.addEventListener("resize", function () {
+    clearTimeout(rt); rt = setTimeout(function(){ if(app.classList.contains("view-detail")) drawMap(); }, 120);
+  });
+})();
+</script>
+
+</body>
+</html>

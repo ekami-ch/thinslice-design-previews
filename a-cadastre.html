@@ -1,0 +1,1468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Footprint Tech · Cadastre</title>
+<style>
+  :root {
+    --ground: #E7EAE3;
+    --surface: #EEF0EA;
+    --surface-2: #F3F4EF;
+    --text: #1A2433;
+    --accent: #1F6F66;
+    --accent-2: #D94A2B;
+
+    --ink-04: rgba(26, 36, 51, 0.04);
+    --ink-06: rgba(26, 36, 51, 0.06);
+    --ink-08: rgba(26, 36, 51, 0.08);
+    --ink-12: rgba(26, 36, 51, 0.12);
+    --ink-18: rgba(26, 36, 51, 0.18);
+    --ink-28: rgba(26, 36, 51, 0.28);
+    --ink-45: rgba(26, 36, 51, 0.45);
+    --ink-62: rgba(26, 36, 51, 0.62);
+
+    --teal-08: rgba(31, 111, 102, 0.08);
+    --teal-14: rgba(31, 111, 102, 0.14);
+    --teal-22: rgba(31, 111, 102, 0.22);
+
+    --verm-08: rgba(217, 74, 43, 0.08);
+    --verm-14: rgba(217, 74, 43, 0.14);
+
+    --font-ui: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+
+    --hair: 1px solid var(--ink-12);
+    --hair-soft: 1px solid var(--ink-08);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  .app {
+    background:
+      linear-gradient(var(--ink-04) 1px, transparent 1px) 0 0 / 100% 28px,
+      var(--ground);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+
+  .shell {
+    width: 1280px;
+    max-width: 100%;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 232px 1fr;
+    background: var(--ground);
+    border-left: var(--hair);
+    border-right: var(--hair);
+  }
+
+  /* ---------- typography helpers ---------- */
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-45);
+    font-weight: 600;
+  }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ================= SIDEBAR ================= */
+  .sidebar {
+    border-right: var(--hair);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  /* measured tick scale down the inner edge */
+  .sidebar::after {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0; right: 0;
+    width: 9px;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        var(--ink-18) 0, var(--ink-18) 1px,
+        transparent 1px, transparent 14px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        var(--ink-28) 0, var(--ink-28) 1px,
+        transparent 1px, transparent 70px
+      );
+    background-position: right 0, right 0;
+    background-size: 5px 14px, 9px 70px;
+    background-repeat: repeat-y;
+    pointer-events: none;
+  }
+
+  .brand {
+    padding: 18px 18px 16px;
+    border-bottom: var(--hair);
+    display: flex;
+    gap: 11px;
+    align-items: center;
+  }
+  .brand-mark {
+    width: 30px; height: 30px;
+    flex: 0 0 auto;
+    border: 1.5px solid var(--accent);
+    position: relative;
+    background: var(--teal-08);
+  }
+  .brand-mark::before, .brand-mark::after {
+    content: ""; position: absolute; background: var(--accent);
+  }
+  .brand-mark::before { left: 50%; top: 4px; bottom: 4px; width: 1.5px; transform: translateX(-50%); }
+  .brand-mark::after { top: 50%; left: 4px; right: 4px; height: 1.5px; transform: translateY(-50%); }
+  .brand-cross {
+    position: absolute; width: 7px; height: 7px;
+    border: 1.5px solid var(--accent-2); border-radius: 50%;
+    left: 50%; top: 50%; transform: translate(-50%,-50%);
+    background: var(--surface);
+  }
+  .brand-name { font-weight: 700; font-size: 14px; letter-spacing: 0.01em; line-height: 1.1; }
+  .brand-sub { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-45); margin-top: 2px; }
+
+  .nav {
+    padding: 12px 0 8px;
+    flex: 1 1 auto;
+  }
+  .nav-label { padding: 6px 18px 8px; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    background: none;
+    border: 0;
+    border-left: 3px solid transparent;
+    padding: 8px 18px 8px 15px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    color: var(--ink-62);
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+  }
+  .nav-item .gl { width: 15px; height: 15px; flex: 0 0 auto; color: var(--ink-45); }
+  .nav-item:hover { background: var(--ink-04); color: var(--text); }
+  .nav-item.active {
+    color: var(--accent);
+    font-weight: 600;
+    border-left-color: var(--accent);
+    background: var(--teal-08);
+  }
+  .nav-item.active .gl { color: var(--accent); }
+  .nav-item .idx {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-28);
+  }
+  .nav-item:focus-visible,
+  .row:focus-visible,
+  .btn:focus-visible,
+  .iconbtn:focus-visible,
+  .search input:focus-visible,
+  .crumb-back:focus-visible {
+    outline: 2px solid var(--accent-2);
+    outline-offset: 2px;
+  }
+
+  .sidebar-foot {
+    border-top: var(--hair);
+    padding: 12px 18px;
+  }
+  .scale-readout { font-size: 10px; color: var(--ink-45); line-height: 1.6; }
+  .scale-readout b { color: var(--text); font-weight: 600; }
+
+  /* ================= MAIN ================= */
+  .main { display: flex; flex-direction: column; min-width: 0; }
+
+  .topbar {
+    height: 60px;
+    border-bottom: var(--hair);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 22px;
+    flex: 0 0 auto;
+  }
+  .search {
+    flex: 1 1 auto;
+    max-width: 440px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: var(--hair);
+    background: var(--ground);
+    padding: 7px 11px;
+  }
+  .search .gl { width: 14px; height: 14px; color: var(--ink-45); flex: 0 0 auto; }
+  .search input {
+    border: 0; background: none; outline: none;
+    font-family: var(--font-ui); font-size: 13px; color: var(--text);
+    width: 100%;
+  }
+  .search input::placeholder { color: var(--ink-45); }
+
+  .season {
+    display: flex; align-items: center; gap: 9px;
+    border: var(--hair); background: var(--ground);
+    padding: 6px 11px;
+    cursor: pointer;
+  }
+  .season .dot { width: 7px; height: 7px; background: var(--accent-2); flex: 0 0 auto; }
+  .season-lab { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-45); }
+  .season-val { font-size: 12px; font-weight: 600; }
+  .season .car { color: var(--ink-45); width: 12px; height: 12px; }
+
+  .userchip {
+    display: flex; align-items: center; gap: 9px;
+    padding-left: 16px;
+    border-left: var(--hair);
+    cursor: pointer;
+  }
+  .avatar {
+    width: 30px; height: 30px; flex: 0 0 auto;
+    background: var(--accent); color: var(--surface);
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.03em;
+  }
+  .user-name { font-size: 12px; font-weight: 600; line-height: 1.1; }
+  .user-org { font-size: 10px; color: var(--ink-45); letter-spacing: 0.04em; }
+
+  .content { padding: 24px 28px 40px; flex: 1 1 auto; min-width: 0; }
+
+  /* coordinate / scale readout strip */
+  .strip {
+    display: flex;
+    align-items: stretch;
+    border: var(--hair);
+    background:
+      repeating-linear-gradient(90deg, var(--ink-08) 0, var(--ink-08) 1px, transparent 1px, transparent 11px) top / 100% 5px no-repeat,
+      var(--surface-2);
+    margin-bottom: 22px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .strip-cell {
+    padding: 10px 16px 9px;
+    border-right: var(--hair-soft);
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .strip-cell:last-child { border-right: 0; margin-left: auto; text-align: right; }
+  .strip-k { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-45); font-family: var(--font-ui); font-weight: 600; }
+  .strip-v { color: var(--text); }
+  .strip-v .em { color: var(--accent); }
+  .strip-v .vm { color: var(--accent-2); }
+
+  /* page head */
+  .pagehead {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 18px; gap: 20px;
+  }
+  .pagehead h1 { font-size: 23px; font-weight: 700; margin: 4px 0 0; letter-spacing: -0.01em; }
+  .pagehead .lede { font-size: 12px; color: var(--ink-62); margin-top: 4px; }
+  .head-actions { display: flex; gap: 8px; flex: 0 0 auto; }
+
+  .btn {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    border: var(--hair); background: var(--ground); color: var(--text);
+    padding: 8px 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn:hover { background: var(--ink-04); }
+  .btn .gl { width: 13px; height: 13px; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface-2); }
+  .btn.primary:hover { background: #1a5e56; }
+
+  /* ================= TABLE ================= */
+  .panel {
+    border: var(--hair);
+    background: var(--surface-2);
+  }
+  .table-wrap { overflow-x: auto; }
+  table.reg {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 940px;
+    font-size: 13px;
+  }
+  table.reg thead th {
+    text-align: left;
+    font-size: 9.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-45);
+    font-weight: 600;
+    padding: 11px 12px 10px;
+    border-bottom: var(--hair);
+    background: var(--surface);
+    white-space: nowrap;
+    position: sticky; top: 0;
+  }
+  table.reg thead th.r { text-align: right; }
+  table.reg tbody tr.row { cursor: pointer; }
+  table.reg tbody td {
+    padding: 0; /* button fills */
+    border-bottom: var(--hair-soft);
+    background: transparent;
+  }
+  /* make each row a single grid of buttons via wrapper trick:
+     we use real <button> as the whole row is impractical in table semantics,
+     so the <tr> is keyboard-activatable via tabindex+role */
+  table.reg tbody tr.row td { padding: 11px 12px; vertical-align: middle; }
+  table.reg tbody tr.row:nth-child(even) td { background: var(--ink-04); }
+  table.reg tbody tr.row:hover td { background: var(--teal-08); }
+  table.reg tbody tr.row td:first-child {
+    border-left: 3px solid transparent;
+  }
+  table.reg tbody tr.row:hover td:first-child { border-left-color: var(--teal-22); }
+  table.reg tbody tr.row[data-active="1"] td:first-child { border-left-color: var(--accent-2); }
+  table.reg tbody tr.row[data-active="1"] td { background: var(--verm-08); }
+
+  .code { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
+  .fname { font-weight: 600; }
+  .amcos { color: var(--ink-62); font-size: 12px; }
+  .crop { font-size: 12px; }
+  td.r { text-align: right; }
+  td .num, th .num { font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-size: 12px; }
+
+  /* NDVI inline bar */
+  .ndvi { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .ndvi .v { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 12px; width: 30px; text-align: right; }
+  .ndvi .bar {
+    width: 54px; height: 7px; background: var(--ink-08); position: relative; flex: 0 0 auto;
+    border: 1px solid var(--ink-12);
+  }
+  .ndvi .bar > i { position: absolute; left: 0; top: 0; bottom: 0; display: block; }
+
+  /* validation segments */
+  .vseg { display: inline-flex; align-items: center; gap: 6px; }
+  .vseg .ticks { display: inline-flex; gap: 2px; }
+  .vseg .ticks > span { width: 9px; height: 9px; border: 1px solid var(--ink-28); background: transparent; }
+  .vseg .ticks > span.on { background: var(--accent); border-color: var(--accent); }
+  .vseg .fr { font-family: var(--font-mono); font-size: 11px; color: var(--ink-62); }
+  .vseg.full .fr { color: var(--accent); }
+  .vseg.zero .fr { color: var(--ink-45); }
+
+  /* sample status pill (text) */
+  .samp { font-size: 11px; font-family: var(--font-mono); }
+  .samp.sampled { color: var(--accent); }
+  .samp.pending { color: var(--ink-62); }
+  .samp.overdue { color: var(--accent-2); }
+
+  /* status tag */
+  .tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+    padding: 3px 8px; border: 1px solid var(--ink-18); color: var(--ink-62);
+    background: var(--ground);
+  }
+  .tag .pip { width: 6px; height: 6px; flex: 0 0 auto; }
+  .tag.active { color: var(--accent); border-color: var(--teal-22); }
+  .tag.active .pip { background: var(--accent); }
+  .tag.draft { color: var(--ink-45); }
+  .tag.draft .pip { background: var(--ink-28); }
+  .tag.suspended { color: var(--accent-2); border-color: var(--verm-14); }
+  .tag.suspended .pip { background: var(--accent-2); }
+
+  .table-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-top: var(--hair);
+    font-size: 11px; color: var(--ink-45); background: var(--surface);
+  }
+  .table-foot .mono { color: var(--ink-62); }
+
+  /* ================= DETAIL VIEW ================= */
+  .hidden { display: none !important; }
+
+  .crumb { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .crumb-back {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    border: var(--hair); background: var(--ground); color: var(--text);
+    padding: 7px 12px; cursor: pointer;
+  }
+  .crumb-back:hover { background: var(--ink-04); }
+  .crumb-back .gl { width: 13px; height: 13px; }
+  .crumb-path { font-size: 11px; color: var(--ink-45); font-family: var(--font-mono); }
+  .crumb-path b { color: var(--accent); font-weight: 600; }
+
+  .detail-head {
+    border: var(--hair); background: var(--surface-2);
+    padding: 18px 20px; margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 24px;
+  }
+  .detail-id { min-width: 0; }
+  .detail-id .dcode { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--accent-2); letter-spacing: 0.04em; }
+  .detail-id h2 { font-size: 24px; font-weight: 700; margin: 5px 0 2px; letter-spacing: -0.01em; }
+  .detail-meta { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 9px; }
+  .dm { font-size: 12px; color: var(--ink-62); }
+  .dm b { color: var(--text); font-weight: 600; }
+  .detail-head .head-actions { align-self: flex-start; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .card { border: var(--hair); background: var(--surface-2); }
+  .card-h {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 16px; border-bottom: var(--hair); background: var(--surface);
+  }
+  .card-h .eyebrow { color: var(--ink-62); }
+  .card-h .tick { font-family: var(--font-mono); font-size: 10px; color: var(--ink-28); }
+  .card-b { padding: 16px; }
+
+  /* MAP card */
+  .map-card .card-b { padding: 0; }
+  .map-frame { position: relative; background: var(--surface); }
+  .map-frame canvas { display: block; width: 100%; height: 460px; }
+  .map-cap {
+    border-top: var(--hair);
+    padding: 9px 14px;
+    font-size: 11px; color: var(--ink-45);
+    display: flex; justify-content: space-between; gap: 12px;
+    background: var(--surface);
+  }
+  .map-cap .note { font-style: italic; }
+  .map-osm { position: absolute; right: 8px; bottom: 8px; font-size: 10px; color: var(--ink-62); background: rgba(238,240,234,0.78); padding: 2px 6px; font-family: var(--font-ui); }
+  .map-coordbadge {
+    position: absolute; left: 10px; top: 10px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--text);
+    background: rgba(238,240,234,0.82); border: var(--hair); padding: 5px 8px; line-height: 1.5;
+  }
+  .map-coordbadge .em { color: var(--accent-2); }
+
+  /* spec rows */
+  .spec { display: grid; grid-template-columns: auto 1fr; gap: 9px 16px; }
+  .spec dt { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-45); font-weight: 600; align-self: center; }
+  .spec dd { margin: 0; font-size: 13px; text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .spec dd.tj { text-align: right; }
+  .spec dd .em { color: var(--accent); }
+  .spec dd .vm { color: var(--accent-2); }
+  .spec-row { display: contents; }
+
+  .area-board { display: flex; gap: 0; border: var(--hair); }
+  .area-cell { flex: 1 1 0; padding: 13px 14px; border-right: var(--hair-soft); }
+  .area-cell:last-child { border-right: 0; }
+  .area-cell .k { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-45); font-weight: 600; }
+  .area-cell .n { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 21px; font-weight: 600; margin-top: 4px; }
+  .area-cell .u { font-size: 11px; color: var(--ink-45); }
+  .area-cell.var .n { color: var(--accent-2); }
+
+  .agro-line { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+  .agro-ndvi { font-family: var(--font-mono); font-size: 28px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .agro-cap { font-size: 11px; color: var(--ink-45); }
+  .soil { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+  .soil .s { border: var(--hair-soft); padding: 9px 10px; background: var(--ground); }
+  .soil .s .k { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-45); font-weight: 600; }
+  .soil .s .v { font-family: var(--font-mono); font-size: 15px; font-weight: 600; margin-top: 3px; }
+  .soil .s .lvl { font-size: 10px; }
+  .lvl.low { color: var(--accent-2); }
+  .lvl.mod { color: var(--ink-62); }
+  .lvl.ok { color: var(--accent); }
+  .fert {
+    border-left: 3px solid var(--accent);
+    background: var(--teal-08);
+    padding: 11px 13px; font-size: 12.5px; line-height: 1.5;
+  }
+  .fert .k { display: block; }
+  .fert .mono { font-size: 12px; }
+
+  /* validation signatures */
+  .sigs { display: flex; flex-direction: column; gap: 0; border: var(--hair); }
+  .sig { display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-bottom: var(--hair-soft); }
+  .sig:last-child { border-bottom: 0; }
+  .sig .mk {
+    width: 20px; height: 20px; flex: 0 0 auto; display: grid; place-items: center;
+    border: 1.5px solid var(--ink-18); font-size: 12px; color: var(--ink-28);
+  }
+  .sig.done .mk { border-color: var(--accent); color: var(--accent); }
+  .sig.pend .mk { border-color: var(--accent-2); color: var(--accent-2); border-style: dashed; }
+  .sig .who { font-size: 13px; font-weight: 600; }
+  .sig .role { font-size: 11px; color: var(--ink-45); }
+  .sig .st { margin-left: auto; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+  .sig.done .st { color: var(--accent); }
+  .sig.pend .st { color: var(--accent-2); }
+
+  .stack { display: flex; flex-direction: column; gap: 20px; }
+
+  .progress-line { margin-top: 12px; }
+  .progress-line .pbar { height: 8px; background: var(--ink-08); border: 1px solid var(--ink-12); position: relative; }
+  .progress-line .pbar > i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); display: block; }
+  .progress-line .pcap { font-size: 11px; color: var(--ink-45); margin-top: 6px; font-family: var(--font-mono); }
+  .progress-line .pcap b { color: var(--accent); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .nav-item, .btn, .crumb-back, table.reg tbody tr.row td { transition: background-color .12s ease, border-color .12s ease, color .12s ease; }
+    .sidebar { transition: transform .22s ease; }
+  }
+
+  /* ================= RESPONSIVE ================= */
+  /* hamburger: hidden on desktop, shown on tablet/phone */
+  .navtoggle {
+    display: none;
+    flex: 0 0 auto;
+    width: 40px; height: 40px;
+    align-items: center; justify-content: center;
+    background: var(--ground); border: var(--hair); color: var(--text);
+    cursor: pointer; padding: 0;
+  }
+  .navtoggle svg { width: 18px; height: 18px; }
+  .navtoggle:hover { background: var(--ink-04); }
+  .navtoggle:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+  .nav-overlay { display: none; }
+
+  @media (max-width: 768px) {
+    /* never scroll horizontally */
+    .shell {
+      grid-template-columns: 1fr;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    /* sidebar becomes an off-canvas drawer */
+    .sidebar {
+      position: fixed;
+      top: 0; bottom: 0; left: 0;
+      width: 264px;
+      max-width: 84vw;
+      z-index: 60;
+      transform: translateX(-100%);
+      overflow-y: auto;
+      box-shadow: 0 0 0 100vmax rgba(0,0,0,0); /* no-op fallback */
+    }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar::after { display: none; } /* drop the inner-edge tick scale in drawer */
+
+    .nav-overlay {
+      display: block;
+      position: fixed; inset: 0;
+      z-index: 55;
+      background: rgba(26, 36, 51, 0.42);
+    }
+    .nav-overlay[hidden] { display: none; }
+
+    .navtoggle { display: inline-flex; }
+
+    /* topbar condenses + can wrap */
+    .topbar {
+      height: auto;
+      min-height: 56px;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px 16px;
+    }
+    .search {
+      order: 3;
+      flex: 1 1 100%;
+      max-width: none;
+      min-height: 40px;
+    }
+    .season { margin-left: auto; padding: 6px 9px; min-height: 40px; }
+    .userchip { padding-left: 12px; }
+
+    .content { padding: 18px 16px 36px; }
+
+    /* coordinate strip wraps to two columns */
+    .strip { flex-wrap: wrap; }
+    .strip-cell {
+      flex: 1 1 50%;
+      min-width: 0;
+      border-right: var(--hair-soft);
+    }
+    .strip-cell:nth-child(2n) { border-right: 0; }
+    .strip-cell:last-child { margin-left: 0; text-align: left; }
+
+    /* page head stacks */
+    .pagehead { flex-wrap: wrap; align-items: flex-start; gap: 14px; }
+    .pagehead h1 { font-size: 21px; }
+    .head-actions { flex-wrap: wrap; }
+    .btn { min-height: 40px; }
+
+    /* detail view: single column */
+    .detail-grid { grid-template-columns: 1fr; }
+    .detail-head { flex-wrap: wrap; gap: 16px; }
+    .detail-head .head-actions { align-self: stretch; }
+    .detail-id h2 { font-size: 21px; }
+
+    /* map: full width, shorter on mobile */
+    .map-frame canvas { height: 360px; }
+
+    /* stat / metric grids → 2 columns */
+    .soil { grid-template-columns: repeat(2, 1fr); }
+
+    /* keyboard-activatable rows still get visible focus */
+    .nav-overlay:focus-visible { outline: none; }
+  }
+
+  @media (max-width: 560px) {
+    /* LIST table → stacked cards using existing row markup */
+    .table-wrap { overflow-x: visible; }
+    table.reg { min-width: 0; display: block; }
+    table.reg thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    table.reg tbody { display: block; }
+    table.reg tbody tr.row {
+      display: block;
+      border-bottom: var(--hair);
+      padding: 4px 0;
+    }
+    table.reg tbody tr.row:nth-child(even) td { background: transparent; }
+    table.reg tbody tr.row:hover td { background: transparent; }
+    table.reg tbody tr.row[data-active="1"] td { background: var(--verm-08); }
+    table.reg tbody tr.row:hover { background: var(--teal-08); }
+    table.reg tbody tr.row[data-active="1"] { background: var(--verm-08); }
+    table.reg tbody tr.row td {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 7px 14px;
+      border-bottom: 0;
+      text-align: left;
+    }
+    table.reg tbody tr.row td:first-child { border-left: 3px solid transparent; }
+    table.reg tbody tr.row[data-active="1"] td:first-child { border-left-color: var(--accent-2); }
+    table.reg tbody tr.row td.r { text-align: left; }
+    /* per-cell label from the header text */
+    table.reg tbody tr.row td::before {
+      content: attr(data-label);
+      flex: 0 0 auto;
+      font-size: 9.5px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--ink-45);
+      font-weight: 600;
+      font-family: var(--font-ui);
+    }
+    .ndvi { justify-content: flex-end; }
+    .table-foot { flex-wrap: wrap; gap: 4px 12px; }
+  }
+
+  @media (max-width: 400px) {
+    .strip-cell { flex: 1 1 100%; border-right: 0; }
+    .userchip .user-name, .userchip .user-org { display: none; }
+    .userchip { padding-left: 10px; }
+    .season .season-lab { display: none; }
+  }
+</style>
+
+<div class="app">
+  <div class="shell">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <div class="nav-overlay" id="navOverlay" hidden></div>
+    <nav class="sidebar" id="primaryNav" aria-label="Primary">
+      <div class="brand">
+        <div class="brand-mark"><span class="brand-cross"></span></div>
+        <div>
+          <div class="brand-name">Footprint Tech</div>
+          <div class="brand-sub">Thinslice</div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <div class="nav-label"><span class="eyebrow">Value chain</span></div>
+        <button class="nav-item active" type="button">
+          <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M1.5 4.5 8 1.5l6.5 3-6.5 3-6.5-3Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M1.5 8 8 11l6.5-3M1.5 11.5 8 14.5l6.5-3" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.5"/></svg>
+          Fields <span class="idx">10</span>
+        </button>
+        <button class="nav-item" type="button">
+          <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 13.5V6l6-4 6 4v7.5" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M2 13.5h12M6.5 13.5v-4h3v4" stroke="currentColor" stroke-width="1.2"/></svg>
+          Properties <span class="idx">38</span>
+        </button>
+        <button class="nav-item" type="button">
+          <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.2"/><path d="M1.7 8h12.6M8 1.7c2 2 2 10.6 0 12.6M8 1.7c-2 2-2 10.6 0 12.6" stroke="currentColor" stroke-width="1.2"/></svg>
+          Organizations <span class="idx">7</span>
+        </button>
+        <button class="nav-item" type="button">
+          <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 13.5V7l6-4.5L14 7v6.5" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M2 13.5h12M4.5 13.5V9h7v4.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          Warehouses <span class="idx">5</span>
+        </button>
+        <button class="nav-item" type="button">
+          <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.2V8l2.6 1.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Seasons <span class="idx">3</span>
+        </button>
+        <div class="nav-label" style="padding-top:14px"><span class="eyebrow">Operations</span></div>
+        <button class="nav-item" type="button">
+          <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.5" y="2" width="11" height="12" stroke="currentColor" stroke-width="1.2"/><path d="M5 5.5h6M5 8h6M5 10.5h3.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          Input Requests <span class="idx">21</span>
+        </button>
+        <button class="nav-item" type="button">
+          <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M1.5 5.5 8 2l6.5 3.5v5L8 14l-6.5-3.5v-5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 8v6M1.5 5.5 8 8l6.5-2.5" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          Deliveries <span class="idx">14</span>
+        </button>
+        <button class="nav-item" type="button">
+          <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="5.5" cy="6" r="2.3" stroke="currentColor" stroke-width="1.2"/><circle cx="11" cy="7" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M1.6 13.5c0-2.2 1.7-3.6 3.9-3.6s3.9 1.4 3.9 3.6M9.5 13.5c.1-1.6 1.1-2.7 2.6-2.7 1.5 0 2.4 1 2.4 2.7" stroke="currentColor" stroke-width="1.2"/></svg>
+          Counterparties <span class="idx">62</span>
+        </button>
+      </div>
+
+      <div class="sidebar-foot">
+        <div class="scale-readout">
+          Datum <b>WGS&nbsp;84</b> · EPSG:4326<br>
+          Sheet scale <b>1:5&nbsp;000</b><br>
+          Region <b>Tabora</b>, Tanzania
+        </div>
+      </div>
+    </nav>
+
+    <!-- ===================== MAIN ===================== -->
+    <div class="main">
+      <header class="topbar">
+        <button class="navtoggle" type="button" id="navToggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="primaryNav">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </button>
+        <div class="search">
+          <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.3"/><path d="m10.6 10.6 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <input type="search" placeholder="Search fields, AMCOS, season…" aria-label="Search fields, AMCOS, season">
+        </div>
+        <button class="season" type="button" aria-label="Season selector">
+          <span class="dot"></span>
+          <span>
+            <span class="season-lab">Season</span><br>
+            <span class="season-val">2026 Long Rains</span>
+          </span>
+          <svg class="car" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="userchip" type="button" aria-label="Account: M. Mwakalinga">
+          <span class="avatar">MM</span>
+          <span>
+            <span class="user-name">M. Mwakalinga</span><br>
+            <span class="user-org">TCJE</span>
+          </span>
+        </button>
+      </header>
+
+      <main class="content">
+
+        <!-- ============ LIST VIEW ============ -->
+        <section id="view-list">
+          <div class="strip" aria-hidden="true">
+            <div class="strip-cell">
+              <span class="strip-k">Registry</span>
+              <span class="strip-v">TCJE · Union · AMCOS · Farmer</span>
+            </div>
+            <div class="strip-cell">
+              <span class="strip-k">Bounding box</span>
+              <span class="strip-v">32.807–32.816 E · 5.020–5.027 S</span>
+            </div>
+            <div class="strip-cell">
+              <span class="strip-k">Active / total</span>
+              <span class="strip-v"><span class="em">7</span> active · 2 draft · <span class="vm">1</span> suspended</span>
+            </div>
+            <div class="strip-cell">
+              <span class="strip-k">Declared area</span>
+              <span class="strip-v">209.8 ha</span>
+            </div>
+          </div>
+
+          <div class="pagehead">
+            <div>
+              <span class="eyebrow">Cadastral register · 2026 Long Rains</span>
+              <h1>Fields</h1>
+              <p class="lede">Surveyed parcels under TCJE management across the Tabora AMCOS network. Select a row to open its survey sheet.</p>
+            </div>
+            <div class="head-actions">
+              <button class="btn" type="button">
+                <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 4h11M4.5 8h7M6.5 12h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Filter
+              </button>
+              <button class="btn" type="button">
+                <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Export
+              </button>
+              <button class="btn primary" type="button">
+                <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                New field
+              </button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="table-wrap">
+              <table class="reg">
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Field name</th>
+                    <th>AMCOS</th>
+                    <th>Crop</th>
+                    <th class="r">Declared ha</th>
+                    <th class="r">Calc ha</th>
+                    <th class="r">NDVI</th>
+                    <th>Soil sample</th>
+                    <th>Validation</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="rows"></tbody>
+              </table>
+            </div>
+            <div class="table-foot">
+              <span>Showing <span class="mono">10</span> of <span class="mono">10</span> fields</span>
+              <span class="mono">Last sync 21 Jun 2026 · 06:14 EAT</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ DETAIL VIEW ============ -->
+        <section id="view-detail" class="hidden">
+          <div class="crumb">
+            <button class="crumb-back" type="button" id="backBtn">
+              <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Back to fields
+            </button>
+            <span class="crumb-path">Fields / <b id="crumbCode">IGN-B7</b></span>
+          </div>
+
+          <div class="detail-head">
+            <div class="detail-id">
+              <span class="dcode" id="dCode">IGN-B7</span>
+              <h2 id="dName">Igalula North B-7</h2>
+              <div class="detail-meta">
+                <span class="dm">Property <b id="dProperty">Igalula Estate</b></span>
+                <span class="dm">Parent region <b>Igalula Cell</b></span>
+                <span class="dm">AMCOS <b id="dAmcos">Igalula</b></span>
+                <span class="dm">Crop <b id="dCrop">Flue-cured tobacco</b></span>
+                <span class="dm">Region <b>Tabora, Tanzania</b></span>
+                <span class="dm">Season <b>2026 Long Rains</b></span>
+              </div>
+            </div>
+            <div class="head-actions">
+              <button class="btn" type="button">
+                <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M11 2.5 13.5 5 6 12.5l-3 .8.8-3L11 2.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+                Edit parcel
+              </button>
+              <button class="btn primary" type="button">
+                <svg class="gl" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5 7 12l6-7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Approve survey
+              </button>
+            </div>
+          </div>
+
+          <div class="detail-grid">
+            <!-- LEFT: map + areas -->
+            <div class="stack">
+              <div class="card map-card">
+                <div class="card-h">
+                  <span class="eyebrow">Survey sheet · Contour plan</span>
+                  <span class="tick">1:5 000 · WGS 84</span>
+                </div>
+                <div class="card-b">
+                  <div class="map-frame">
+                    <canvas id="mapCanvas"></canvas>
+                    <div class="map-coordbadge">
+                      Centroid<br>
+                      <span class="em">−5.0238</span>, <span class="em">32.8114</span><br>
+                      Vertices 7
+                    </div>
+                    <div class="map-osm">© OpenStreetMap contributors</div>
+                  </div>
+                  <div class="map-cap">
+                    <span class="note">Styled cadastral preview — live OSM tiles load in the production app.</span>
+                    <span class="mono">Parcel IGN-B7 · 8 nodes (closed)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-h">
+                  <span class="eyebrow">Area reconciliation</span>
+                  <span class="tick">hectares</span>
+                </div>
+                <div class="card-b">
+                  <div class="area-board">
+                    <div class="area-cell">
+                      <div class="k">Declared</div>
+                      <div class="n" id="aDecl">24.6</div>
+                      <div class="u">ha · from farmer record</div>
+                    </div>
+                    <div class="area-cell">
+                      <div class="k">Calculated</div>
+                      <div class="n" id="aCalc">25.1</div>
+                      <div class="u">ha · from geometry</div>
+                    </div>
+                    <div class="area-cell var">
+                      <div class="k">Variance</div>
+                      <div class="n" id="aVar">+0.5</div>
+                      <div class="u" id="aVarPct">ha · +2% vs declared</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: agronomy, validity, validation -->
+            <div class="stack">
+              <div class="card">
+                <div class="card-h"><span class="eyebrow">Agronomy</span><span class="tick">2026 Long Rains</span></div>
+                <div class="card-b">
+                  <div class="agro-line">
+                    <span class="agro-ndvi" id="dNdvi">0.71</span>
+                    <span class="agro-cap">NDVI · captured <b>18 Jun 2026</b></span>
+                  </div>
+                  <div class="eyebrow" style="margin:6px 0 8px">Soil sample · 12 Mar 2026</div>
+                  <div class="soil">
+                    <div class="s"><div class="k">pH</div><div class="v">5.8</div><div class="lvl mod">acidic</div></div>
+                    <div class="s"><div class="k">N</div><div class="v">N</div><div class="lvl low">low</div></div>
+                    <div class="s"><div class="k">P</div><div class="v">P</div><div class="lvl mod">moderate</div></div>
+                    <div class="s"><div class="k">K</div><div class="v">K</div><div class="lvl ok">adequate</div></div>
+                  </div>
+                  <div class="fert">
+                    <span class="eyebrow k" style="margin-bottom:5px">Fertiliser recommendation</span>
+                    <span class="mono">NPK 10-18-24 basal — 150 kg/ha</span><br>
+                    <span class="mono">CAN top-dress — 180 kg/ha</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-h"><span class="eyebrow">Validity period</span><span class="tick">temporal</span></div>
+                <div class="card-b">
+                  <dl class="spec">
+                    <dt>Valid since</dt><dd>2026-01-01</dd>
+                    <dt>Valid until</dt><dd>2026-12-31</dd>
+                    <dt>Centroid</dt><dd><span class="vm">−5.0238</span>, <span class="vm">32.8114</span></dd>
+                    <dt>Vertices</dt><dd>7</dd>
+                  </dl>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-h"><span class="eyebrow">Biometric validation</span><span class="tick">2 / 3 signed</span></div>
+                <div class="card-b">
+                  <div class="sigs">
+                    <div class="sig done">
+                      <span class="mk">✓</span>
+                      <span><span class="who">Farmer</span><br><span class="role">J. Mahenge · NIDA verified</span></span>
+                      <span class="st">Signed</span>
+                    </div>
+                    <div class="sig done">
+                      <span class="mk">✓</span>
+                      <span><span class="who">AMCOS officer</span><br><span class="role">Igalula AMCOS · field visit</span></span>
+                      <span class="st">Signed</span>
+                    </div>
+                    <div class="sig pend">
+                      <span class="mk">·</span>
+                      <span><span class="who">TCJE representative</span><br><span class="role">Awaiting countersign</span></span>
+                      <span class="st">Pending</span>
+                    </div>
+                  </div>
+                  <div class="progress-line">
+                    <div class="pbar"><i style="width:66.6%"></i></div>
+                    <div class="pcap"><b>2/3</b> signatures · ready to finalise on 3rd</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- field register data ----
+  var FIELDS = [
+    { code:"IGN-B7", name:"Igalula North B-7", amcos:"Igalula AMCOS", crop:"Flue-cured tobacco", decl:24.6, calc:25.1, ndvi:0.71, sample:"Sampled", val:2, status:"Active", property:"Igalula Estate" },
+    { code:"UYU-A3", name:"Uyui Ridge A-3", amcos:"Uyui AMCOS", crop:"Maize", decl:18.2, calc:17.9, ndvi:0.66, sample:"Pending", val:3, status:"Active", property:"Uyui Estate" },
+    { code:"SIK-C1", name:"Sikonge Block C-1", amcos:"Sikonge AMCOS", crop:"Cotton", decl:31.5, calc:32.0, ndvi:0.58, sample:"Sampled", val:0, status:"Draft", property:"Sikonge Estate" },
+    { code:"URA-D9", name:"Urambo Flats D-9", amcos:"Urambo AMCOS", crop:"Sunflower", decl:12.8, calc:12.6, ndvi:0.49, sample:"Overdue", val:1, status:"Active", property:"Urambo Estate" },
+    { code:"NZE-B2", name:"Nzega East B-2", amcos:"Nzega AMCOS", crop:"Flue-cured tobacco", decl:27.4, calc:28.1, ndvi:0.74, sample:"Sampled", val:3, status:"Active", property:"Nzega Estate" },
+    { code:"IGA-F4", name:"Igalula South F-4", amcos:"Igalula AMCOS", crop:"Groundnut", decl:9.6, calc:9.4, ndvi:0.61, sample:"Sampled", val:2, status:"Active", property:"Igalula Estate" },
+    { code:"KAL-A7", name:"Kaliua Plain A-7", amcos:"Kaliua AMCOS", crop:"Sorghum", decl:15.0, calc:15.3, ndvi:0.53, sample:"Pending", val:0, status:"Draft", property:"Kaliua Estate" },
+    { code:"TAB-E5", name:"Tabora West E-5", amcos:"Tabora Central AMCOS", crop:"Maize", decl:22.1, calc:21.7, ndvi:0.69, sample:"Sampled", val:2, status:"Active", property:"Tabora West Estate" },
+    { code:"URA-B1", name:"Urambo North B-1", amcos:"Urambo AMCOS", crop:"Tobacco", decl:19.9, calc:20.4, ndvi:0.72, sample:"Sampled", val:3, status:"Active", property:"Urambo Estate" },
+    { code:"SIK-D8", name:"Sikonge Far D-8", amcos:"Sikonge AMCOS", crop:"Cotton", decl:28.7, calc:29.0, ndvi:0.45, sample:"Overdue", val:0, status:"Suspended", property:"Sikonge Estate" }
+  ];
+
+  var ACCENT = "#1F6F66", VERM = "#D94A2B", INK = "#1A2433";
+
+  // NDVI colour ramp: low (verm) -> mid (ink) -> high (verdigris)
+  function ndviColor(v) {
+    if (v >= 0.66) return ACCENT;
+    if (v >= 0.55) return "#6E8A4F";
+    if (v >= 0.50) return "#9A7A3A";
+    return VERM;
+  }
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+
+  // ---- render rows ----
+  var tbody = document.getElementById("rows");
+  FIELDS.forEach(function (f, i) {
+    var tr = document.createElement("tr");
+    tr.className = "row";
+    tr.setAttribute("tabindex", "0");
+    tr.setAttribute("role", "button");
+    tr.setAttribute("aria-label", "Open survey sheet for " + f.code + ", " + f.name);
+    tr.dataset.idx = i;
+
+    var ndviPct = Math.max(0, Math.min(1, (f.ndvi - 0.30) / (0.85 - 0.30))) * 100;
+    var col = ndviColor(f.ndvi);
+
+    var sampleClass = f.sample === "Sampled" ? "sampled" : (f.sample === "Overdue" ? "overdue" : "pending");
+
+    var ticks = "";
+    for (var t = 0; t < 3; t++) ticks += '<span class="' + (t < f.val ? "on" : "") + '"></span>';
+    var vClass = f.val === 3 ? "full" : (f.val === 0 ? "zero" : "");
+
+    var statusClass = f.status.toLowerCase();
+
+    tr.innerHTML =
+      '<td data-label="Code"><span class="code">' + esc(f.code) + '</span></td>' +
+      '<td data-label="Field name"><span class="fname">' + esc(f.name) + '</span></td>' +
+      '<td data-label="AMCOS"><span class="amcos">' + esc(f.amcos) + '</span></td>' +
+      '<td data-label="Crop"><span class="crop">' + esc(f.crop) + '</span></td>' +
+      '<td class="r" data-label="Declared ha"><span class="num">' + f.decl.toFixed(1) + '</span></td>' +
+      '<td class="r" data-label="Calc ha"><span class="num">' + f.calc.toFixed(1) + '</span></td>' +
+      '<td class="r" data-label="NDVI"><span class="ndvi"><span class="bar"><i style="width:' + ndviPct.toFixed(0) + '%;background:' + col + '"></i></span><span class="v">' + f.ndvi.toFixed(2) + '</span></span></td>' +
+      '<td data-label="Soil sample"><span class="samp ' + sampleClass + '">' + esc(f.sample) + '</span></td>' +
+      '<td data-label="Validation"><span class="vseg ' + vClass + '"><span class="ticks">' + ticks + '</span><span class="fr">' + f.val + '/3</span></span></td>' +
+      '<td data-label="Status"><span class="tag ' + statusClass + '"><span class="pip"></span>' + esc(f.status) + '</span></td>';
+
+    tr.addEventListener("click", function () { openDetail(i); });
+    tr.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetail(i); }
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  // ---- view toggling ----
+  var listView = document.getElementById("view-list");
+  var detailView = document.getElementById("view-detail");
+  var backBtn = document.getElementById("backBtn");
+  var activeIdx = 0;
+
+  function setText(id, v){ document.getElementById(id).textContent = v; }
+
+  function openDetail(i) {
+    var f = FIELDS[i];
+    activeIdx = i;
+
+    Array.prototype.forEach.call(tbody.querySelectorAll("tr.row"), function (r) {
+      r.removeAttribute("data-active");
+    });
+    tbody.querySelectorAll("tr.row")[i].setAttribute("data-active", "1");
+
+    setText("crumbCode", f.code);
+    setText("dCode", f.code);
+    setText("dName", f.name);
+    setText("dProperty", f.property);
+    setText("dAmcos", f.amcos.replace(/\s+AMCOS$/, ""));
+    setText("dCrop", f.crop);
+    setText("aDecl", f.decl.toFixed(1));
+    setText("aCalc", f.calc.toFixed(1));
+
+    var diff = f.calc - f.decl;
+    var pct = (diff / f.decl) * 100;
+    var sign = diff >= 0 ? "+" : "−";
+    setText("aVar", sign + Math.abs(diff).toFixed(1));
+    setText("aVarPct", "ha · " + sign + Math.abs(pct).toFixed(0) + "% vs declared");
+
+    var ndviEl = document.getElementById("dNdvi");
+    ndviEl.textContent = f.ndvi.toFixed(2);
+    ndviEl.style.color = ndviColor(f.ndvi);
+
+    listView.classList.add("hidden");
+    detailView.classList.remove("hidden");
+    window.scrollTo(0, 0);
+    requestAnimationFrame(drawMap);
+    backBtn.focus();
+  }
+
+  function backToList() {
+    detailView.classList.add("hidden");
+    listView.classList.remove("hidden");
+    var r = tbody.querySelectorAll("tr.row")[activeIdx];
+    if (r) r.focus();
+  }
+  backBtn.addEventListener("click", backToList);
+
+  // ============================================================
+  //  OFF-CANVAS NAV DRAWER (mobile/tablet ≤768px)
+  // ============================================================
+  var sidebar = document.getElementById("primaryNav");
+  var navToggle = document.getElementById("navToggle");
+  var navOverlay = document.getElementById("navOverlay");
+
+  function openNav() {
+    sidebar.classList.add("open");
+    navOverlay.hidden = false;
+    navToggle.setAttribute("aria-expanded", "true");
+    // focus first nav item for keyboard users
+    var first = sidebar.querySelector(".nav-item");
+    if (first) first.focus();
+  }
+  function closeNav(restoreFocus) {
+    sidebar.classList.remove("open");
+    navOverlay.hidden = true;
+    navToggle.setAttribute("aria-expanded", "false");
+    if (restoreFocus) navToggle.focus();
+  }
+  function isNavOpen() { return sidebar.classList.contains("open"); }
+
+  navToggle.addEventListener("click", function () {
+    isNavOpen() ? closeNav(true) : openNav();
+  });
+  navOverlay.addEventListener("click", function () { closeNav(true); });
+
+  // close on nav-item activation
+  Array.prototype.forEach.call(sidebar.querySelectorAll(".nav-item"), function (item) {
+    item.addEventListener("click", function () { closeNav(false); });
+  });
+
+  // Escape closes the drawer
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && isNavOpen()) { e.preventDefault(); closeNav(true); }
+  });
+
+  // if viewport grows past the drawer breakpoint, reset drawer state
+  window.addEventListener("resize", function () {
+    if (window.innerWidth > 768 && isNavOpen()) closeNav(false);
+  });
+
+  // ============================================================
+  //  CADASTRAL CONTOUR-PLAN MAP
+  // ============================================================
+  var POLY = [
+    [32.8090,-5.0210],[32.8138,-5.0205],[32.8156,-5.0228],[32.8149,-5.0258],
+    [32.8118,-5.0271],[32.8086,-5.0262],[32.8074,-5.0238],[32.8090,-5.0210]
+  ];
+
+  var canvas = document.getElementById("mapCanvas");
+  var ctx = canvas.getContext("2d");
+
+  // deterministic value-noise field for contours
+  function hash2(x, y) {
+    var n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+    return n - Math.floor(n);
+  }
+  function smooth(t){ return t * t * (3 - 2 * t); }
+  function valueNoise(x, y) {
+    var x0 = Math.floor(x), y0 = Math.floor(y);
+    var fx = smooth(x - x0), fy = smooth(y - y0);
+    var a = hash2(x0, y0), b = hash2(x0 + 1, y0), c = hash2(x0, y0 + 1), d = hash2(x0 + 1, y0 + 1);
+    return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
+  }
+  function fbm(x, y) {
+    var v = 0, amp = 0.5, freq = 1;
+    for (var o = 0; o < 4; o++) { v += amp * valueNoise(x * freq, y * freq); freq *= 2; amp *= 0.5; }
+    return v;
+  }
+
+  function metresPerDeg(lat) {
+    return { lon: 111320 * Math.cos(lat * Math.PI / 180), lat: 110540 };
+  }
+
+  function drawMap() {
+    var rect = canvas.getBoundingClientRect();
+    var W = Math.max(320, Math.round(rect.width));
+    var H = 460;
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // bbox + 25% padding
+    var minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+    POLY.forEach(function (p) {
+      if (p[0] < minLon) minLon = p[0]; if (p[0] > maxLon) maxLon = p[0];
+      if (p[1] < minLat) minLat = p[1]; if (p[1] > maxLat) maxLat = p[1];
+    });
+    var padX = (maxLon - minLon) * 0.25, padY = (maxLat - minLat) * 0.25;
+    minLon -= padX; maxLon += padX; minLat -= padY; maxLat += padY;
+
+    // fit while preserving aspect via metric scaling
+    var mpd = metresPerDeg((minLat + maxLat) / 2);
+    var spanXm = (maxLon - minLon) * mpd.lon;
+    var spanYm = (maxLat - minLat) * mpd.lat;
+    var scale = Math.min(W / spanXm, H / spanYm) * 0.96;
+    var drawWm = spanXm * scale, drawHm = spanYm * scale;
+    var offX = (W - drawWm) / 2, offY = (H - drawHm) / 2;
+
+    function proj(lon, lat) {
+      var xm = (lon - minLon) * mpd.lon;
+      var ym = (maxLat - lat) * mpd.lat; // invert
+      return [offX + xm * scale, offY + ym * scale];
+    }
+
+    // ---- background paper ----
+    ctx.fillStyle = "#EAEDE6";
+    ctx.fillRect(0, 0, W, H);
+
+    // faint survey grid
+    ctx.strokeStyle = "rgba(26,36,51,0.055)";
+    ctx.lineWidth = 1;
+    var gstep = 46;
+    for (var gx = (offX % gstep); gx < W; gx += gstep) {
+      ctx.beginPath(); ctx.moveTo(Math.round(gx)+0.5, 0); ctx.lineTo(Math.round(gx)+0.5, H); ctx.stroke();
+    }
+    for (var gy = (offY % gstep); gy < H; gy += gstep) {
+      ctx.beginPath(); ctx.moveTo(0, Math.round(gy)+0.5); ctx.lineTo(W, Math.round(gy)+0.5); ctx.stroke();
+    }
+
+    // ---- procedural contour lines (marching-squares on noise) ----
+    drawContours(W, H);
+
+    // ---- neighbouring parcels (context) ----
+    var neighbours = [
+      [[32.8138,-5.0205],[32.8170,-5.0200],[32.8182,-5.0224],[32.8156,-5.0228]],
+      [[32.8156,-5.0228],[32.8182,-5.0224],[32.8176,-5.0256],[32.8149,-5.0258]],
+      [[32.8118,-5.0271],[32.8149,-5.0258],[32.8158,-5.0286],[32.8126,-5.0294]],
+      [[32.8050,-5.0244],[32.8074,-5.0238],[32.8086,-5.0262],[32.8062,-5.0272]],
+      [[32.8062,-5.0205],[32.8090,-5.0210],[32.8074,-5.0238],[32.8048,-5.0230]],
+      [[32.8090,-5.0178],[32.8138,-5.0205],[32.8090,-5.0210],[32.8068,-5.0188]]
+    ];
+    ctx.lineWidth = 1;
+    neighbours.forEach(function (nb) {
+      ctx.beginPath();
+      nb.forEach(function (p, k) { var q = proj(p[0], p[1]); k ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); });
+      ctx.closePath();
+      ctx.fillStyle = "rgba(26,36,51,0.025)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(26,36,51,0.20)";
+      ctx.setLineDash([4, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    // ---- the parcel ----
+    var pts = POLY.map(function (p) { return proj(p[0], p[1]); });
+
+    ctx.beginPath();
+    pts.forEach(function (q, k) { k ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); });
+    ctx.closePath();
+    ctx.fillStyle = "rgba(31,111,102,0.14)";
+    ctx.fill();
+    ctx.lineWidth = 2.2;
+    ctx.strokeStyle = VERM;
+    ctx.lineJoin = "round";
+    ctx.stroke();
+
+    // vertex ticks
+    pts.forEach(function (q, k) {
+      if (k === pts.length - 1) return; // closing dup
+      ctx.beginPath();
+      ctx.rect(q[0] - 2.6, q[1] - 2.6, 5.2, 5.2);
+      ctx.fillStyle = "#EAEDE6";
+      ctx.fill();
+      ctx.lineWidth = 1.4;
+      ctx.strokeStyle = VERM;
+      ctx.stroke();
+    });
+
+    // ---- dimensioned edges with witness lines ----
+    function edgeLengthM(a, b) {
+      var dxm = (b[0] - a[0]) * mpd.lon, dym = (b[1] - a[1]) * mpd.lat;
+      return Math.sqrt(dxm * dxm + dym * dym);
+    }
+    function dimEdge(iA, iB) {
+      var a = POLY[iA], b = POLY[iB];
+      var pa = proj(a[0], a[1]), pb = proj(b[0], b[1]);
+      var len = Math.round(edgeLengthM(a, b));
+      // outward normal
+      var dx = pb[0] - pa[0], dy = pb[1] - pa[1];
+      var L = Math.sqrt(dx*dx + dy*dy) || 1;
+      // centroid of parcel for outward direction
+      var cx = 0, cy = 0; pts.slice(0, -1).forEach(function(q){ cx += q[0]; cy += q[1]; });
+      cx /= (pts.length - 1); cy /= (pts.length - 1);
+      var midx = (pa[0]+pb[0])/2, midy = (pa[1]+pb[1])/2;
+      var nx = -dy / L, ny = dx / L;
+      if ((midx + nx - cx) * (midx - cx) + (midy + ny - cy) * (midy - cy) < (midx - cx)*(midx-cx)+(midy-cy)*(midy-cy)) { nx = -nx; ny = -ny; }
+      var off = 16;
+      var oa = [pa[0] + nx*off, pa[1] + ny*off];
+      var ob = [pb[0] + nx*off, pb[1] + ny*off];
+
+      ctx.strokeStyle = "rgba(26,36,51,0.55)";
+      ctx.lineWidth = 1;
+      // witness lines
+      ctx.beginPath(); ctx.moveTo(pa[0], pa[1]); ctx.lineTo(oa[0], oa[1]); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(pb[0], pb[1]); ctx.lineTo(ob[0], ob[1]); ctx.stroke();
+      // dimension line
+      ctx.beginPath(); ctx.moveTo(oa[0], oa[1]); ctx.lineTo(ob[0], ob[1]); ctx.stroke();
+      // arrow ticks (slashes)
+      function slash(p) {
+        ctx.beginPath();
+        ctx.moveTo(p[0] - dx/L*4 - nx*3, p[1] - dy/L*4 - ny*3);
+        ctx.lineTo(p[0] + dx/L*4 + nx*3, p[1] + dy/L*4 + ny*3);
+        ctx.stroke();
+      }
+      slash(oa); slash(ob);
+      // label
+      var lx = (oa[0]+ob[0])/2 + nx*9, ly = (oa[1]+ob[1])/2 + ny*9;
+      var label = len + " m";
+      ctx.font = "600 11px ui-monospace, Menlo, Consolas, monospace";
+      var tw = ctx.measureText(label).width;
+      ctx.fillStyle = "rgba(234,237,230,0.92)";
+      ctx.fillRect(lx - tw/2 - 4, ly - 8, tw + 8, 15);
+      ctx.fillStyle = VERM;
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(label, lx, ly);
+      ctx.textAlign = "start"; ctx.textBaseline = "alphabetic";
+    }
+    dimEdge(0, 1);
+    dimEdge(3, 4);
+
+    // ---- centroid crosshair ----
+    var cgLon = 0, cgLat = 0;
+    POLY.slice(0, -1).forEach(function (p) { cgLon += p[0]; cgLat += p[1]; });
+    cgLon /= (POLY.length - 1); cgLat /= (POLY.length - 1);
+    var cg = proj(cgLon, cgLat);
+    ctx.strokeStyle = VERM;
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    ctx.arc(cg[0], cg[1], 7, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cg[0] - 12, cg[1]); ctx.lineTo(cg[0] + 12, cg[1]);
+    ctx.moveTo(cg[0], cg[1] - 12); ctx.lineTo(cg[0], cg[1] + 12);
+    ctx.stroke();
+
+    // ---- scale bar ----
+    drawScaleBar(W, H, scale);
+
+    // ---- north arrow ----
+    drawNorth(W);
+  }
+
+  function drawContours(W, H) {
+    // sample noise -> elevation; draw iso-lines at thresholds
+    var step = 7;
+    var cols = Math.ceil(W / step) + 1;
+    var rows = Math.ceil(H / step) + 1;
+    var grid = new Float32Array(cols * rows);
+    var nscale = 0.011;
+    for (var j = 0; j < rows; j++) {
+      for (var i = 0; i < cols; i++) {
+        var x = i * step, y = j * step;
+        grid[j * cols + i] = fbm(x * nscale + 13.2, y * nscale + 7.7);
+      }
+    }
+    function val(i, j) { return grid[j * cols + i]; }
+    function interp(a, b) { return (a) / (a - b); }
+
+    var levels = [0.30, 0.38, 0.46, 0.54, 0.62, 0.70, 0.78];
+    ctx.lineWidth = 1;
+    levels.forEach(function (lev, li) {
+      var major = (li % 2 === 0);
+      ctx.strokeStyle = major ? "rgba(31,111,102,0.26)" : "rgba(31,111,102,0.13)";
+      ctx.lineWidth = major ? 1.1 : 0.8;
+      ctx.beginPath();
+      for (var j = 0; j < rows - 1; j++) {
+        for (var i = 0; i < cols - 1; i++) {
+          var tl = val(i, j) - lev, tr = val(i + 1, j) - lev,
+              br = val(i + 1, j + 1) - lev, bl = val(i, j + 1) - lev;
+          var idx = (tl > 0 ? 8 : 0) | (tr > 0 ? 4 : 0) | (br > 0 ? 2 : 0) | (bl > 0 ? 1 : 0);
+          if (idx === 0 || idx === 15) continue;
+          var x = i * step, y = j * step;
+          var T = [x + step * interp(tl, tr), y];
+          var R = [x + step, y + step * interp(tr, br)];
+          var B = [x + step * interp(bl, br), y + step];
+          var Lp = [x, y + step * interp(tl, bl)];
+          function seg(p, q) { ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); }
+          switch (idx) {
+            case 1: case 14: seg(Lp, B); break;
+            case 2: case 13: seg(B, R); break;
+            case 3: case 12: seg(Lp, R); break;
+            case 4: case 11: seg(T, R); break;
+            case 5: seg(Lp, T); seg(B, R); break;
+            case 6: case 9: seg(T, B); break;
+            case 7: case 8: seg(Lp, T); break;
+            case 10: seg(T, R); seg(Lp, B); break;
+          }
+        }
+      }
+      ctx.stroke();
+    });
+  }
+
+  function drawScaleBar(W, H, scale) {
+    // choose a nice round metre length whose pixel width ~110px
+    var targetPx = 110;
+    var metres = targetPx / scale;
+    var nice = [50, 100, 150, 200, 250, 300, 400, 500];
+    var chosen = nice[0];
+    for (var i = 0; i < nice.length; i++) { if (Math.abs(nice[i] - metres) < Math.abs(chosen - metres)) chosen = nice[i]; }
+    var px = chosen * scale;
+    var x = 16, y = H - 22;
+
+    ctx.fillStyle = "rgba(234,237,230,0.85)";
+    ctx.fillRect(x - 6, y - 16, px + 50, 30);
+
+    // bar: alternating filled segments
+    var segs = 4, sw = px / segs;
+    for (var s = 0; s < segs; s++) {
+      ctx.fillStyle = (s % 2 === 0) ? INK : "#EAEDE6";
+      ctx.fillRect(x + s * sw, y, sw, 5);
+    }
+    ctx.strokeStyle = INK; ctx.lineWidth = 1;
+    ctx.strokeRect(x + 0.5, y + 0.5, px, 5);
+
+    ctx.fillStyle = INK;
+    ctx.font = "600 10px ui-monospace, Menlo, Consolas, monospace";
+    ctx.textBaseline = "alphabetic"; ctx.textAlign = "start";
+    ctx.fillText("0", x - 1, y - 4);
+    ctx.fillText(chosen + " m", x + px - 14, y - 4);
+  }
+
+  function drawNorth(W) {
+    var x = W - 30, y = 34, r = 13;
+    ctx.fillStyle = "rgba(234,237,230,0.85)";
+    ctx.fillRect(x - 16, y - 20, 32, 50);
+    // arrow
+    ctx.beginPath();
+    ctx.moveTo(x, y - r);
+    ctx.lineTo(x + 6, y + r);
+    ctx.lineTo(x, y + r - 5);
+    ctx.lineTo(x - 6, y + r);
+    ctx.closePath();
+    ctx.fillStyle = VERM;
+    ctx.fill();
+    ctx.strokeStyle = INK; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = INK;
+    ctx.font = "700 11px system-ui, Segoe UI, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("N", x, y - r - 4);
+    ctx.textAlign = "start";
+  }
+
+  // redraw on resize when detail visible
+  var rT;
+  window.addEventListener("resize", function () {
+    if (detailView.classList.contains("hidden")) return;
+    clearTimeout(rT);
+    rT = setTimeout(drawMap, 120);
+  });
+
+})();
+</script>
+
+</body>
+</html>

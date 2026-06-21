@@ -1,0 +1,1311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Footprint Tech · Soil Horizon</title>
+<style>
+  :root{
+    --ground:#FBF7F0;
+    --surface:#FFFFFF;
+    --text:#2B2118;
+    --muted:#7A6A56;
+    --faint:#A8997F;
+    --line:#ECE3D4;
+    --line-strong:#DED1BC;
+    --accent:#3E7D44;
+    --accent-soft:#E5F0E2;
+    --accent-2:#B5532A;
+    --accent-2-soft:#F6E5DC;
+    /* soil-horizon band scale */
+    --h1:#4A3526; /* humus */
+    --h2:#7A5230; /* topsoil */
+    --h3:#C08A3E; /* ochre subsoil */
+    --h4:#9C6B4A; /* clay */
+    --amber:#C08A3E;
+    --amber-soft:#F4E8D2;
+    --radius:14px;
+    --radius-sm:10px;
+    --shadow-sm:0 1px 2px rgba(43,33,24,.05), 0 1px 1px rgba(43,33,24,.04);
+    --shadow:0 2px 6px rgba(43,33,24,.06), 0 8px 24px rgba(43,33,24,.06);
+    --shadow-lg:0 4px 12px rgba(43,33,24,.08), 0 18px 48px rgba(43,33,24,.10);
+    --sans:"Segoe UI", system-ui, "Helvetica Neue", Roboto, Arial, sans-serif;
+    --mono:ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ground);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  .num{font-variant-numeric:tabular-nums;}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+
+  :focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+    border-radius:6px;
+  }
+
+  /* ---------- shell ---------- */
+  .app{
+    display:grid;
+    grid-template-columns:228px 1fr;
+    min-height:100vh;
+    max-width:1280px;
+    margin:0 auto;
+    background:var(--ground);
+  }
+
+  /* ---------- sidebar ---------- */
+  .sidebar{
+    position:relative;
+    background:var(--surface);
+    border-right:1px solid var(--line);
+    padding:0 0 24px;
+    display:flex;
+    flex-direction:column;
+  }
+  /* signature soil-horizon rail */
+  .sidebar::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;bottom:0;
+    width:6px;
+    background:linear-gradient(
+      to bottom,
+      var(--h1) 0%, var(--h1) 24%,
+      var(--h2) 24%, var(--h2) 50%,
+      var(--h3) 50%, var(--h3) 76%,
+      var(--h4) 76%, var(--h4) 100%
+    );
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:20px 20px 18px 26px;
+  }
+  .brand-mark{
+    width:34px;height:34px;border-radius:9px;
+    background:var(--accent);
+    display:grid;place-items:center;
+    flex:none;
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);
+  }
+  .brand-mark svg{display:block;}
+  .brand-name{font-weight:700;font-size:15px;letter-spacing:-.01em;line-height:1.1;}
+  .brand-sub{font-size:11px;color:var(--muted);letter-spacing:.02em;}
+
+  .nav{padding:6px 14px 0 20px;display:flex;flex-direction:column;gap:2px;}
+  .nav-label{
+    font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--faint);
+    padding:14px 8px 6px;
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:11px;
+    padding:9px 11px;
+    border-radius:var(--radius-sm);
+    color:var(--muted);
+    font-weight:550;
+    font-size:13.5px;
+    border:none;background:none;width:100%;text-align:left;
+    transition:background .12s, color .12s;
+  }
+  .nav-item .ico{flex:none;color:var(--faint);transition:color .12s;}
+  .nav-item:hover{background:var(--ground);color:var(--text);}
+  .nav-item:hover .ico{color:var(--muted);}
+  .nav-item.active{
+    background:var(--accent-soft);
+    color:var(--accent);
+    font-weight:650;
+  }
+  .nav-item.active .ico{color:var(--accent);}
+  .nav-count{
+    margin-left:auto;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums;
+    background:var(--ground);border-radius:20px;padding:1px 8px;
+  }
+  .nav-item.active .nav-count{background:#fff;color:var(--accent);}
+
+  .sidebar-foot{
+    margin-top:auto;
+    padding:14px 20px 0;
+    font-size:11px;color:var(--faint);
+    border-top:1px solid var(--line);
+    margin-left:6px;
+  }
+  .sidebar-foot strong{color:var(--muted);font-weight:600;}
+
+  /* ---------- main ---------- */
+  .main{display:flex;flex-direction:column;min-width:0;}
+
+  .topbar{
+    display:flex;align-items:center;gap:16px;
+    padding:14px 28px;
+    border-bottom:1px solid var(--line);
+    background:rgba(251,247,240,.85);
+    backdrop-filter:saturate(120%) blur(6px);
+    position:sticky;top:0;z-index:20;
+  }
+  .search{
+    position:relative;flex:1;max-width:420px;
+  }
+  .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--faint);}
+  .search input{
+    width:100%;
+    font-family:inherit;font-size:13.5px;color:var(--text);
+    background:var(--surface);
+    border:1px solid var(--line-strong);
+    border-radius:10px;
+    padding:9px 12px 9px 36px;
+    transition:border-color .12s, box-shadow .12s;
+  }
+  .search input::placeholder{color:var(--faint);}
+  .search input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+
+  .season{
+    display:flex;align-items:center;gap:8px;
+    background:var(--surface);border:1px solid var(--line-strong);
+    border-radius:10px;padding:8px 12px;font-size:13px;font-weight:550;
+    color:var(--text);
+  }
+  .season .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .season .chev{color:var(--faint);}
+
+  .user-chip{
+    display:flex;align-items:center;gap:10px;
+    padding:5px 12px 5px 6px;border-radius:30px;
+    background:var(--surface);border:1px solid var(--line-strong);
+    margin-left:auto;
+  }
+  .avatar{
+    width:30px;height:30px;border-radius:50%;
+    background:var(--h2);color:#fff;
+    display:grid;place-items:center;font-weight:700;font-size:12px;flex:none;
+  }
+  .user-meta{line-height:1.15;}
+  .user-name{font-weight:650;font-size:12.5px;}
+  .user-org{font-size:11px;color:var(--muted);}
+
+  /* ---------- views ---------- */
+  .view{padding:26px 28px 48px;}
+  .view[hidden]{display:none;}
+
+  /* page head */
+  .page-head{display:flex;align-items:flex-end;gap:18px;margin-bottom:20px;flex-wrap:wrap;}
+  .breadcrumb{font-size:12px;color:var(--muted);margin-bottom:5px;}
+  .breadcrumb b{color:var(--text);font-weight:600;}
+  h1{font-size:23px;font-weight:700;letter-spacing:-.02em;margin:0;}
+  .page-head .lead{color:var(--muted);font-size:13.5px;margin-top:3px;}
+  .head-actions{margin-left:auto;display:flex;gap:10px;align-items:center;}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;
+    border-radius:10px;padding:9px 15px;font-size:13px;font-weight:600;
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--text);
+    transition:background .12s,border-color .12s,box-shadow .12s;
+  }
+  .btn:hover{background:var(--ground);}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:var(--shadow-sm);}
+  .btn-primary:hover{background:#356b3b;}
+  .btn-ghost{border-color:transparent;background:transparent;color:var(--muted);padding-left:8px;}
+  .btn-ghost:hover{background:var(--surface);color:var(--text);}
+
+  /* summary stat strip */
+  .stat-strip{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;
+  }
+  .stat{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:15px 17px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;
+  }
+  .stat .chip{position:absolute;top:0;left:0;width:4px;height:100%;}
+  .stat-label{font-size:11.5px;color:var(--muted);font-weight:600;letter-spacing:.01em;}
+  .stat-value{font-size:25px;font-weight:700;letter-spacing:-.02em;margin-top:5px;line-height:1;}
+  .stat-value small{font-size:13px;font-weight:600;color:var(--muted);}
+  .stat-sub{font-size:11.5px;color:var(--faint);margin-top:6px;}
+  .stat-sub .up{color:var(--accent);font-weight:650;}
+  .stat-sub .warn{color:var(--accent-2);font-weight:650;}
+
+  /* toolbar above table */
+  .list-tools{
+    display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;
+  }
+  .seg{display:inline-flex;background:var(--surface);border:1px solid var(--line-strong);border-radius:10px;padding:3px;gap:2px;}
+  .seg button{
+    border:none;background:none;border-radius:7px;padding:6px 13px;font-size:12.5px;font-weight:600;color:var(--muted);
+  }
+  .seg button.on{background:var(--accent-soft);color:var(--accent);}
+  .filter-pill{
+    display:inline-flex;align-items:center;gap:7px;
+    background:var(--surface);border:1px solid var(--line-strong);border-radius:30px;
+    padding:6px 13px;font-size:12.5px;font-weight:550;color:var(--muted);
+  }
+  .filter-pill .x{color:var(--faint);font-weight:700;}
+  .list-count{margin-left:auto;font-size:12.5px;color:var(--muted);}
+  .list-count b{color:var(--text);}
+
+  /* ---------- specimen table ---------- */
+  .table-wrap{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .table-scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;min-width:980px;}
+  thead th{
+    text-align:left;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--faint);padding:13px 14px;border-bottom:1px solid var(--line);
+    white-space:nowrap;background:var(--ground);
+  }
+  thead th.r{text-align:right;}
+  tbody tr{
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    transition:background .1s;
+  }
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:var(--ground);}
+  tbody tr:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;background:var(--accent-soft);}
+  td{padding:13px 14px;vertical-align:middle;}
+  td.r{text-align:right;}
+
+  .code-cell{display:flex;align-items:center;gap:11px;}
+  .soil-chip{
+    width:9px;height:34px;border-radius:4px;flex:none;
+    background:linear-gradient(to bottom,var(--h1) 0 25%,var(--h2) 25% 50%,var(--h3) 50% 75%,var(--h4) 75% 100%);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+  }
+  .code-text{line-height:1.2;}
+  .code-id{font-family:var(--mono);font-weight:650;font-size:12.5px;letter-spacing:-.01em;}
+  .code-name{font-size:13.5px;font-weight:600;}
+  .code-amcos{font-size:11.5px;color:var(--muted);}
+
+  .crop-tag{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;font-weight:600;color:var(--text);
+    background:var(--ground);border:1px solid var(--line-strong);border-radius:20px;padding:3px 10px 3px 8px;
+    white-space:nowrap;
+  }
+  .crop-dot{width:7px;height:7px;border-radius:2px;flex:none;}
+
+  .ha{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;}
+  .ha .calc{color:var(--muted);font-size:11.5px;}
+
+  /* NDVI leafy bar */
+  .ndvi{display:flex;align-items:center;gap:9px;min-width:118px;}
+  .ndvi-track{
+    position:relative;flex:1;height:7px;border-radius:6px;background:var(--line);overflow:hidden;
+  }
+  .ndvi-fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;
+    background:linear-gradient(90deg,#A9C26A,#3E7D44);}
+  .ndvi-val{font-family:var(--mono);font-size:12.5px;font-weight:600;width:34px;text-align:right;}
+
+  /* signature pips */
+  .pips{display:inline-flex;gap:4px;align-items:center;}
+  .pip{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--line-strong);background:var(--surface);
+    display:grid;place-items:center;}
+  .pip.on{background:var(--accent);border-color:var(--accent);}
+  .pip.on svg{display:block;}
+  .pip-label{font-size:11.5px;color:var(--muted);margin-left:5px;font-variant-numeric:tabular-nums;}
+
+  /* status + sample badges */
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:11.5px;font-weight:650;border-radius:20px;padding:3px 10px;white-space:nowrap;
+  }
+  .badge .bd{width:6px;height:6px;border-radius:50%;}
+  .b-active{background:var(--accent-soft);color:#2f6235;}
+  .b-active .bd{background:var(--accent);}
+  .b-draft{background:#F0EADD;color:#7a6240;}
+  .b-draft .bd{background:var(--amber);}
+  .b-susp{background:var(--accent-2-soft);color:#933f1d;}
+  .b-susp .bd{background:var(--accent-2);}
+
+  .sample{font-size:12px;font-weight:600;}
+  .s-sampled{color:#2f6235;}
+  .s-pending{color:#7a6240;}
+  .s-overdue{color:var(--accent-2);}
+  .s-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+
+  .row-go{color:var(--faint);}
+  tbody tr:hover .row-go{color:var(--accent);}
+
+  /* ===================================================================
+     DETAIL VIEW
+  =================================================================== */
+  .detail-grid{
+    display:grid;grid-template-columns:1.35fr 1fr;gap:20px;align-items:start;
+  }
+  .detail-col{display:flex;flex-direction:column;gap:20px;min-width:0;}
+
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow-sm);overflow:hidden;
+  }
+  .card-head{
+    display:flex;align-items:center;gap:9px;padding:15px 18px 0;
+  }
+  .card-title{font-size:13px;font-weight:700;letter-spacing:.01em;}
+  .card-head .meta{margin-left:auto;font-size:11.5px;color:var(--faint);}
+  .card-body{padding:15px 18px 18px;}
+
+  /* detail identity header */
+  .id-head{
+    margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  }
+  .id-soil{
+    width:12px;align-self:stretch;border-radius:5px;min-height:54px;
+    background:linear-gradient(to bottom,var(--h1) 0 25%,var(--h2) 25% 50%,var(--h3) 50% 75%,var(--h4) 75% 100%);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
+  }
+  .id-main h1{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .id-id{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--accent);background:var(--accent-soft);
+    padding:3px 10px;border-radius:8px;letter-spacing:-.01em;}
+  .id-crumb{font-size:13px;color:var(--muted);margin-top:6px;}
+  .id-crumb b{color:var(--text);font-weight:600;}
+
+  /* ---- THE BOLD MOVE: soil profile diagram ---- */
+  .profile-card{position:relative;}
+  .profile{
+    display:grid;grid-template-columns:128px 1fr;gap:0;
+  }
+  .strata{position:relative;}
+  .stratum{
+    position:relative;padding:0 14px;display:flex;align-items:center;
+    color:#fff;
+  }
+  .stratum:first-child{border-top-left-radius:10px;}
+  .stratum:last-child{border-bottom-left-radius:10px;}
+  .stratum .depth{
+    position:absolute;left:9px;top:6px;font-family:var(--mono);font-size:9.5px;opacity:.72;font-weight:600;
+  }
+  .stratum .sname{font-size:11.5px;font-weight:700;letter-spacing:.01em;text-shadow:0 1px 2px rgba(0,0,0,.25);}
+  .h-humus{background:var(--h1);height:46px;}
+  .h-topsoil{background:var(--h2);height:74px;}
+  .h-ochre{background:var(--h3);height:74px;}
+  .h-clay{background:var(--h4);height:60px;}
+
+  /* annotation column tied to strata */
+  .anno{display:flex;flex-direction:column;border-left:1px dashed var(--line-strong);}
+  .anno-row{
+    display:flex;align-items:center;gap:12px;padding:0 4px 0 16px;position:relative;
+  }
+  .anno-row::before{
+    content:"";position:absolute;left:-1px;top:50%;width:12px;height:1px;background:var(--line-strong);
+  }
+  .anno-row .marker{
+    width:9px;height:9px;border-radius:50%;flex:none;position:absolute;left:-5px;top:50%;transform:translateY(-50%);
+    border:2px solid var(--surface);
+  }
+  .ah-humus{height:46px;}
+  .ah-topsoil{height:74px;}
+  .ah-ochre{height:74px;}
+  .ah-clay{height:60px;}
+  .anno-read{line-height:1.25;}
+  .anno-k{font-size:12px;font-weight:700;}
+  .anno-v{font-size:11.5px;color:var(--muted);}
+  .lvl{font-family:var(--mono);font-weight:700;font-size:11px;border-radius:6px;padding:1px 7px;margin-left:2px;}
+  .lvl-low{background:var(--accent-2-soft);color:#933f1d;}
+  .lvl-mod{background:var(--amber-soft);color:#7a5512;}
+  .lvl-ok{background:var(--accent-soft);color:#2f6235;}
+
+  .ph-readout{
+    display:flex;align-items:baseline;gap:8px;margin-left:auto;
+    background:var(--ground);border:1px solid var(--line);border-radius:9px;padding:6px 12px;
+  }
+  .ph-readout .pv{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent-2);}
+  .ph-readout .pl{font-size:11px;color:var(--muted);font-weight:600;}
+
+  /* fertiliser rec band */
+  .rec{
+    margin-top:16px;border:1px solid var(--accent-soft);background:linear-gradient(180deg,#F4FAF1,#fff);
+    border-radius:11px;padding:13px 15px;display:flex;gap:13px;align-items:flex-start;
+  }
+  .rec-ico{width:30px;height:30px;border-radius:8px;background:var(--accent);display:grid;place-items:center;flex:none;}
+  .rec h4{margin:0 0 3px;font-size:12.5px;font-weight:700;color:#2f6235;}
+  .rec p{margin:0;font-size:12.5px;color:var(--text);line-height:1.45;}
+  .rec .dose{font-family:var(--mono);font-weight:650;color:var(--accent-2);}
+
+  /* areas comparison */
+  .areas{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  .area-cell{background:var(--ground);border:1px solid var(--line);border-radius:11px;padding:12px 13px;}
+  .area-cell .k{font-size:11px;color:var(--muted);font-weight:600;}
+  .area-cell .v{font-family:var(--mono);font-size:19px;font-weight:700;margin-top:4px;}
+  .area-cell .v small{font-size:12px;color:var(--muted);font-weight:600;}
+  .area-cell.var .v{color:var(--accent);}
+
+  /* map card */
+  .map-card{padding:0;overflow:hidden;}
+  .map-frame{position:relative;background:#EFE7D6;}
+  #fieldMap{display:block;width:100%;height:380px;}
+  .map-caption{
+    display:flex;align-items:center;gap:8px;padding:11px 16px;border-top:1px solid var(--line);
+    font-size:12px;color:var(--muted);background:var(--surface);
+  }
+  .map-caption .pin{color:var(--accent-2);}
+  .map-coords{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--faint);}
+  .map-osm{
+    position:absolute;right:8px;bottom:8px;font-size:10px;color:#5a4f3f;
+    background:rgba(255,255,255,.82);border-radius:5px;padding:2px 7px;
+  }
+
+  /* validity + signatures */
+  .kv{display:flex;flex-direction:column;gap:0;}
+  .kv-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;}
+  .kv-row:last-child{border-bottom:none;}
+  .kv-row .k{color:var(--muted);}
+  .kv-row .v{font-weight:600;text-align:right;}
+  .kv-row .v.mono{font-family:var(--mono);font-weight:600;}
+
+  .sig-list{display:flex;flex-direction:column;gap:9px;}
+  .sig{display:flex;align-items:center;gap:11px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--ground);}
+  .sig.done{background:var(--accent-soft);border-color:#cfe3ca;}
+  .sig.wait{background:var(--amber-soft);border-color:#ecdcbb;}
+  .sig-ico{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff;}
+  .sig.done .sig-ico{background:var(--accent);}
+  .sig.wait .sig-ico{background:var(--amber);}
+  .sig-who{font-weight:650;font-size:13px;}
+  .sig-role{font-size:11.5px;color:var(--muted);}
+  .sig-state{margin-left:auto;font-size:11.5px;font-weight:650;}
+  .sig.done .sig-state{color:#2f6235;}
+  .sig.wait .sig-state{color:#7a5512;}
+
+  .sig-summary{display:flex;align-items:center;gap:10px;margin-bottom:13px;}
+  .sig-meter{flex:1;height:8px;border-radius:5px;background:var(--line);overflow:hidden;}
+  .sig-meter span{display:block;height:100%;background:var(--accent);border-radius:5px;}
+  .sig-frac{font-family:var(--mono);font-weight:700;font-size:13px;}
+
+  .ndvi-block{display:flex;align-items:center;gap:14px;}
+  .ndvi-ring{flex:none;}
+  .ndvi-big{font-family:var(--mono);font-size:28px;font-weight:700;line-height:1;}
+  .ndvi-cap{font-size:11.5px;color:var(--muted);margin-top:4px;}
+
+  /* hamburger — hidden on desktop, shown in drawer mode */
+  .hamburger{
+    display:none;
+    align-items:center;justify-content:center;
+    width:40px;height:40px;flex:none;
+    border:1px solid var(--line-strong);background:var(--surface);color:var(--text);
+    border-radius:10px;padding:0;
+  }
+  .hamburger:hover{background:var(--ground);}
+  /* drawer overlay */
+  .nav-overlay{
+    position:fixed;inset:0;z-index:40;
+    background:rgba(43,33,24,.42);
+    opacity:0;transition:opacity .2s ease;
+  }
+  .nav-overlay.show{opacity:1;}
+
+  /* reduced motion */
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+  /* responsive guard — never horizontal page scroll */
+  @media (max-width:1080px){
+    .detail-grid{grid-template-columns:1fr;}
+    .stat-strip{grid-template-columns:1fr 1fr;}
+  }
+
+  /* =====================================================================
+     TABLET ≤768px — off-canvas drawer + single column
+  ===================================================================== */
+  @media (max-width:768px){
+    /* single-column shell; sidebar becomes a fixed off-canvas drawer */
+    .app{grid-template-columns:1fr;max-width:100%;}
+
+    .hamburger{display:inline-flex;}
+
+    .sidebar{
+      position:fixed;top:0;left:0;bottom:0;z-index:50;
+      width:284px;max-width:86vw;
+      box-shadow:var(--shadow-lg);
+      transform:translateX(-100%);
+      transition:transform .24s ease;
+      overflow-y:auto;
+      will-change:transform;
+    }
+    .sidebar.open{transform:translateX(0);}
+    /* keep the signature soil-horizon rail visible inside the drawer */
+
+    /* topbar condenses */
+    .topbar{padding:10px 16px;gap:10px;flex-wrap:wrap;}
+    .search{order:3;flex:1 1 100%;max-width:none;}
+    .season{order:1;}
+    .user-chip{order:2;}
+
+    /* views breathe less at the edges */
+    .view{padding:20px 16px 40px;}
+    .page-head{gap:12px;}
+    .head-actions{margin-left:0;flex-wrap:wrap;}
+
+    /* detail multi-column → single column (also covered above ≤1080) */
+    .detail-grid{grid-template-columns:1fr;}
+
+    /* map: full-width, sensible mobile height */
+    #fieldMap{height:300px;}
+
+    /* areas / metric grids → 2 cols */
+    .areas{grid-template-columns:1fr 1fr;}
+  }
+
+  /* =====================================================================
+     PHONE ≤560px — stacked specimen cards, condensed chrome
+  ===================================================================== */
+  @media (max-width:560px){
+    .stat-strip{grid-template-columns:1fr 1fr;gap:10px;}
+
+    /* user chip: hide secondary text, keep avatar tap target */
+    .user-chip{padding:5px;}
+    .user-meta{display:none;}
+
+    /* ---- table → stacked specimen cards ---- */
+    .table-wrap{background:transparent;border:none;box-shadow:none;border-radius:0;overflow:visible;}
+    .table-scroll{overflow:visible;}
+    table{min-width:0;display:block;}
+    thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;}
+    tbody{display:block;}
+    tbody tr{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      grid-template-areas:
+        "code  code   go"
+        "crop  crop   crop"
+        "ha    ndvi   ndvi"
+        "samp  valid  status";
+      gap:10px 12px;align-items:center;
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow-sm);
+      padding:14px;
+      margin-bottom:12px;
+    }
+    tbody tr:last-child{border-bottom:1px solid var(--line);margin-bottom:0;}
+    tbody tr:hover{background:var(--surface);}
+    td{display:block;padding:0;}
+    td.r{text-align:left;}
+
+    td:nth-child(1){grid-area:code;}
+    td:nth-child(2){grid-area:crop;}
+    td:nth-child(3){grid-area:ha;}
+    td:nth-child(4){grid-area:ndvi;}
+    td:nth-child(5){grid-area:samp;}
+    td:nth-child(6){grid-area:valid;}
+    td:nth-child(7){grid-area:status;}
+    td:nth-child(8){grid-area:go;align-self:start;justify-self:end;}
+
+    /* labels for the unlabelled card fields */
+    td:nth-child(3)::before{content:"Area ha";display:block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin-bottom:3px;}
+    td:nth-child(4)::before{content:"NDVI";display:block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin-bottom:3px;}
+
+    .crop-tag{width:auto;}
+    .ndvi{min-width:0;}
+    .row-go{color:var(--accent);}
+
+    /* enlarge tap-friendly rows; row itself is the button */
+    tbody tr{min-height:44px;}
+  }
+
+  /* =====================================================================
+     PHONE ≤480px → 360px — tighten, single-column metrics
+  ===================================================================== */
+  @media (max-width:480px){
+    h1{font-size:20px;}
+
+    /* metric / stat grids → single column where they crowd */
+    .areas{grid-template-columns:1fr;}
+
+    /* soil-profile: shrink the strata label column so anno text fits */
+    .profile{grid-template-columns:96px 1fr;}
+    .stratum{padding:0 8px;}
+    .stratum .sname{font-size:10.5px;}
+    .stratum .depth{font-size:8.5px;left:7px;}
+    .anno-row{gap:8px;padding:0 2px 0 13px;}
+    .anno-k{font-size:11.5px;}
+    .anno-v{font-size:11px;}
+    .lvl{font-size:10px;padding:1px 5px;}
+
+    /* pH readout wraps under the intro text */
+    .profile-card .card-body > div:first-child{flex-wrap:wrap;gap:10px;}
+    .ph-readout{margin-left:0;}
+
+    #fieldMap{height:240px;}
+
+    /* head actions full width, comfortable taps */
+    .head-actions{width:100%;}
+    .head-actions .btn{flex:1;justify-content:center;min-height:42px;}
+
+    /* stat strip stays 2-up but tighter; values shrink slightly */
+    .stat{padding:13px 14px;}
+    .stat-value{font-size:22px;}
+  }
+
+  /* =====================================================================
+     VERY NARROW ≤400px — stat strip single column to avoid crowding
+  ===================================================================== */
+  @media (max-width:400px){
+    .stat-strip{grid-template-columns:1fr;}
+  }
+</style>
+
+<div class="app">
+  <!-- drawer overlay (mobile only) -->
+  <div class="nav-overlay" id="navOverlay" hidden></div>
+
+  <!-- ============ SIDEBAR ============ -->
+  <nav class="sidebar" id="primaryNav" aria-label="Primary">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3c3.5 2.5 5 5.5 5 8.5C17 16 14.5 19 12 21 9.5 19 7 16 7 11.5 7 8.5 8.5 5.5 12 3Z" fill="#fff"/><path d="M12 7v11" stroke="#3E7D44" stroke-width="1.3"/></svg>
+      </span>
+      <div>
+        <div class="brand-name">Footprint Tech</div>
+        <div class="brand-sub">Thinslice · ops</div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <div class="nav-label">Value chain</div>
+      <button class="nav-item active" aria-current="page">
+        <span class="ico" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7l9-4 9 4-9 4-9-4Z"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4"/></svg></span>
+        Fields <span class="nav-count num">214</span>
+      </button>
+      <button class="nav-item">
+        <span class="ico" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="9" width="18" height="12" rx="1.5"/><path d="M7 9V5h10v4"/></svg></span>
+        Properties <span class="nav-count num">63</span>
+      </button>
+      <button class="nav-item">
+        <span class="ico" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>
+        Organizations
+      </button>
+      <button class="nav-item">
+        <span class="ico" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-7h6v7"/></svg></span>
+        Warehouses
+      </button>
+      <button class="nav-item">
+        <span class="ico" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v18M3 12c4-1 6-4 9-9 3 5 5 8 9 9-4 1-6 4-9 9-3-5-5-8-9-9Z"/></svg></span>
+        Seasons
+      </button>
+
+      <div class="nav-label">Flows</div>
+      <button class="nav-item">
+        <span class="ico" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 8h11l-3-3M19 16H8l3 3"/></svg></span>
+        Input requests <span class="nav-count num">7</span>
+      </button>
+      <button class="nav-item">
+        <span class="ico" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7h13v10H3zM16 10h3l2 3v4h-5"/><circle cx="7" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/></svg></span>
+        Deliveries
+      </button>
+      <button class="nav-item">
+        <span class="ico" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-3 3-5 6-5s6 2 6 5M14 20c0-2 2-3.5 4-3.5"/></svg></span>
+        Counterparties
+      </button>
+    </div>
+
+    <div class="sidebar-foot">
+      <strong>Tabora region</strong><br>
+      TCJE → Union → AMCOS → Farmer
+    </div>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="topbar">
+      <button class="hamburger" type="button" id="navToggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="primaryNav">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+        <input type="search" placeholder="Search fields, AMCOS, season…" aria-label="Search fields, AMCOS, season">
+      </div>
+      <button class="season" type="button">
+        <span class="dot" aria-hidden="true"></span>
+        2026 Long Rains
+        <span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></span>
+      </button>
+      <button class="user-chip" type="button">
+        <span class="avatar" aria-hidden="true">MM</span>
+        <span class="user-meta">
+          <span class="user-name">M. Mwakalinga</span>
+          <span class="user-org">TCJE</span>
+        </span>
+      </button>
+    </header>
+
+    <!-- ====== LIST VIEW ====== -->
+    <main class="view" id="view-list">
+      <div class="page-head">
+        <div>
+          <div class="breadcrumb"><b>Fields</b> · Tabora, Tanzania</div>
+          <h1>Fields</h1>
+          <div class="lead">Registered cultivation plots across the AMCOS network for this season.</div>
+        </div>
+        <div class="head-actions">
+          <button class="btn" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M3 12h18"/></svg>
+            Import GeoJSON
+          </button>
+          <button class="btn btn-primary" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            New field
+          </button>
+        </div>
+      </div>
+
+      <div class="stat-strip">
+        <div class="stat">
+          <span class="chip" style="background:var(--accent)"></span>
+          <div class="stat-label">Active fields</div>
+          <div class="stat-value num">7 <small>/ 10</small></div>
+          <div class="stat-sub">2 draft · 1 suspended</div>
+        </div>
+        <div class="stat">
+          <span class="chip" style="background:var(--h3)"></span>
+          <div class="stat-label">Calculated area</div>
+          <div class="stat-value num">211.5 <small>ha</small></div>
+          <div class="stat-sub"><span class="up">+1.4 ha</span> vs declared</div>
+        </div>
+        <div class="stat">
+          <span class="chip" style="background:var(--accent-2)"></span>
+          <div class="stat-label">Soil samples</div>
+          <div class="stat-value num">6 <small>sampled</small></div>
+          <div class="stat-sub"><span class="warn">2 overdue</span> · 2 pending</div>
+        </div>
+        <div class="stat">
+          <span class="chip" style="background:var(--h2)"></span>
+          <div class="stat-label">Validation</div>
+          <div class="stat-value num">63<small>%</small></div>
+          <div class="stat-sub">signatures collected</div>
+        </div>
+      </div>
+
+      <div class="list-tools">
+        <div class="seg" role="group" aria-label="View mode">
+          <button class="on" type="button" aria-pressed="true">Table</button>
+          <button type="button" aria-pressed="false">Map</button>
+        </div>
+        <span class="filter-pill">Season: 2026 Long Rains <span class="x" aria-hidden="true">×</span></span>
+        <span class="filter-pill">All AMCOS <span class="chev" aria-hidden="true">▾</span></span>
+        <span class="list-count">Showing <b>10</b> of 214 fields</span>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Field</th>
+                <th scope="col">Crop</th>
+                <th scope="col" class="r">Declared / Calc ha</th>
+                <th scope="col">NDVI</th>
+                <th scope="col">Soil sample</th>
+                <th scope="col">Validation</th>
+                <th scope="col">Status</th>
+                <th scope="col" aria-label="Open"></th>
+              </tr>
+            </thead>
+            <tbody id="fieldRows"><!-- injected --></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- ====== DETAIL VIEW ====== -->
+    <main class="view" id="view-detail" hidden>
+      <button class="btn btn-ghost" type="button" id="backBtn" style="margin-bottom:14px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        Back to fields
+      </button>
+
+      <div class="id-head">
+        <span class="id-soil" aria-hidden="true"></span>
+        <div class="id-main">
+          <h1><span class="id-id" id="d-code">IGN-B7</span> <span id="d-name">Igalula North B-7</span></h1>
+          <div class="id-crumb">
+            Property <b id="d-prop">Igalula Estate</b> · Region <b id="d-cell">Igalula Cell</b> · AMCOS <b id="d-amcos">Igalula</b> · <b>Tabora, Tanzania</b> · Season <b>2026 Long Rains</b>
+          </div>
+        </div>
+        <div class="head-actions">
+          <span class="badge b-active" id="d-status"><span class="bd" aria-hidden="true"></span>Active</span>
+          <button class="btn" type="button">Edit field</button>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <!-- LEFT column -->
+        <div class="detail-col">
+
+          <!-- MAP -->
+          <section class="card map-card">
+            <div class="card-head" style="padding:15px 16px 12px;">
+              <span class="card-title">Plot geometry</span>
+              <span class="meta">7 vertices · WGS-84</span>
+            </div>
+            <div class="map-frame">
+              <canvas id="fieldMap" aria-label="Plot boundary map for Igalula North B-7" role="img"></canvas>
+              <span class="map-osm">© OpenStreetMap contributors</span>
+            </div>
+            <div class="map-caption">
+              <span class="pin" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg></span>
+              Styled preview — live OpenStreetMap tiles load in production.
+              <span class="map-coords">centroid −5.0238, 32.8114</span>
+            </div>
+          </section>
+
+          <!-- THE BOLD MOVE: SOIL PROFILE -->
+          <section class="card profile-card">
+            <div class="card-head">
+              <span class="card-title">Soil profile</span>
+              <span class="meta">Sampled 12 Mar 2026 · 0–60 cm core</span>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;margin-bottom:14px;">
+                <div style="font-size:12.5px;color:var(--muted);max-width:360px;">
+                  Readings placed against the horizon they were drawn from. Levels drive the fertiliser recommendation below.
+                </div>
+                <div class="ph-readout">
+                  <span class="pv num">5.8</span>
+                  <span class="pl">pH · slightly acidic</span>
+                </div>
+              </div>
+
+              <div class="profile">
+                <!-- strata -->
+                <div class="strata" aria-hidden="true">
+                  <div class="stratum h-humus">
+                    <span class="depth mono">0–8 cm</span>
+                    <span class="sname">Humus (O/A)</span>
+                  </div>
+                  <div class="stratum h-topsoil">
+                    <span class="depth mono">8–25 cm</span>
+                    <span class="sname">Topsoil (A)</span>
+                  </div>
+                  <div class="stratum h-ochre">
+                    <span class="depth mono">25–45 cm</span>
+                    <span class="sname">Ochre subsoil (B)</span>
+                  </div>
+                  <div class="stratum h-clay">
+                    <span class="depth mono">45–60 cm</span>
+                    <span class="sname">Clay (Bt)</span>
+                  </div>
+                </div>
+                <!-- annotations -->
+                <div class="anno">
+                  <div class="anno-row ah-humus">
+                    <span class="marker" style="background:var(--h1)"></span>
+                    <div class="anno-read">
+                      <div class="anno-k">Organic matter</div>
+                      <div class="anno-v">Thin litter layer, good structure</div>
+                    </div>
+                  </div>
+                  <div class="anno-row ah-topsoil">
+                    <span class="marker" style="background:var(--h2)"></span>
+                    <div class="anno-read">
+                      <div class="anno-k">Nitrogen (N) <span class="lvl lvl-low">low</span></div>
+                      <div class="anno-v">Root zone depleted — leaching after long rains</div>
+                    </div>
+                  </div>
+                  <div class="anno-row ah-ochre">
+                    <span class="marker" style="background:var(--h3)"></span>
+                    <div class="anno-read">
+                      <div class="anno-k">Phosphorus (P) <span class="lvl lvl-mod">moderate</span></div>
+                      <div class="anno-v">Adequate for establishment, monitor</div>
+                    </div>
+                  </div>
+                  <div class="anno-row ah-clay">
+                    <span class="marker" style="background:var(--h4)"></span>
+                    <div class="anno-read">
+                      <div class="anno-k">Potassium (K) <span class="lvl lvl-ok">adequate</span></div>
+                      <div class="anno-v">Held well in clay fraction</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rec">
+                <span class="rec-ico" aria-hidden="true">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M12 3c3.5 2.5 5 5.5 5 8.5C17 16 14.5 19 12 21 9.5 19 7 16 7 11.5 7 8.5 8.5 5.5 12 3Z"/></svg>
+                </span>
+                <div>
+                  <h4>Fertiliser recommendation</h4>
+                  <p>Address the low-N topsoil: <span class="dose">NPK 10-18-24 basal 150 kg/ha</span> at planting, then <span class="dose">CAN top-dress 180 kg/ha</span> at 4–6 weeks. Lime not required at pH 5.8.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- RIGHT column -->
+        <div class="detail-col">
+
+          <!-- Areas -->
+          <section class="card">
+            <div class="card-head"><span class="card-title">Area reconciliation</span></div>
+            <div class="card-body">
+              <div class="areas">
+                <div class="area-cell">
+                  <div class="k">Declared</div>
+                  <div class="v num">24.6 <small>ha</small></div>
+                </div>
+                <div class="area-cell">
+                  <div class="k">Calculated</div>
+                  <div class="v num">25.1 <small>ha</small></div>
+                </div>
+                <div class="area-cell var">
+                  <div class="k">Variance</div>
+                  <div class="v num">+0.5 <small>ha · +2%</small></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- NDVI -->
+          <section class="card">
+            <div class="card-head"><span class="card-title">Vegetation index</span><span class="meta">Captured 18 Jun 2026</span></div>
+            <div class="card-body">
+              <div class="ndvi-block">
+                <canvas class="ndvi-ring" id="ndviRing" width="76" height="76" aria-hidden="true"></canvas>
+                <div>
+                  <div class="ndvi-big num">0.71</div>
+                  <div class="ndvi-cap">NDVI · healthy canopy for flue-cured tobacco at this stage</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Validation / signatures -->
+          <section class="card">
+            <div class="card-head"><span class="card-title">Biometric validation</span></div>
+            <div class="card-body">
+              <div class="sig-summary">
+                <span class="sig-frac num">2 / 3</span>
+                <span class="sig-meter" aria-hidden="true"><span style="width:66.6%"></span></span>
+                <span style="font-size:11.5px;color:var(--muted);">signatures</span>
+              </div>
+              <div class="sig-list">
+                <div class="sig done">
+                  <span class="sig-ico" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5 9-10"/></svg></span>
+                  <div><div class="sig-who">Farmer</div><div class="sig-role">J. Said · fingerprint</div></div>
+                  <span class="sig-state">Signed</span>
+                </div>
+                <div class="sig done">
+                  <span class="sig-ico" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5 9-10"/></svg></span>
+                  <div><div class="sig-who">AMCOS officer</div><div class="sig-role">Igalula AMCOS · device 04</div></div>
+                  <span class="sig-state">Signed</span>
+                </div>
+                <div class="sig wait">
+                  <span class="sig-ico" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg></span>
+                  <div><div class="sig-who">TCJE rep</div><div class="sig-role">Field verification visit</div></div>
+                  <span class="sig-state">Pending</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Validity -->
+          <section class="card">
+            <div class="card-head"><span class="card-title">Registration validity</span></div>
+            <div class="card-body">
+              <div class="kv">
+                <div class="kv-row"><span class="k">Valid since</span><span class="v mono">2026-01-01</span></div>
+                <div class="kv-row"><span class="k">Valid until</span><span class="v mono">2026-12-31</span></div>
+                <div class="kv-row"><span class="k">Centroid</span><span class="v mono">−5.0238, 32.8114</span></div>
+                <div class="kv-row"><span class="k">Boundary vertices</span><span class="v mono">7</span></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- crop colour key ---------- */
+  var cropColor = {
+    "Flue-cured tobacco":"#8A6D3B","Tobacco":"#8A6D3B",
+    "Maize":"#D9A441","Cotton":"#6E8FA8","Sunflower":"#E0B021",
+    "Groundnut":"#B07A4A","Sorghum":"#A8472E"
+  };
+
+  /* ---------- field data ---------- */
+  var fields = [
+    {code:"IGN-B7",name:"Igalula North B-7",amcos:"Igalula AMCOS",crop:"Flue-cured tobacco",dec:24.6,calc:25.1,ndvi:0.71,sample:"Sampled",sig:2,status:"Active",prop:"Igalula Estate",cell:"Igalula Cell"},
+    {code:"UYU-A3",name:"Uyui Ridge A-3",amcos:"Uyui AMCOS",crop:"Maize",dec:18.2,calc:17.9,ndvi:0.66,sample:"Pending",sig:3,status:"Active",prop:"Uyui Estate",cell:"Uyui Cell"},
+    {code:"SIK-C1",name:"Sikonge Block C-1",amcos:"Sikonge AMCOS",crop:"Cotton",dec:31.5,calc:32.0,ndvi:0.58,sample:"Sampled",sig:0,status:"Draft",prop:"Sikonge Estate",cell:"Sikonge Cell"},
+    {code:"URA-D9",name:"Urambo Flats D-9",amcos:"Urambo AMCOS",crop:"Sunflower",dec:12.8,calc:12.6,ndvi:0.49,sample:"Overdue",sig:1,status:"Active",prop:"Urambo Estate",cell:"Urambo Cell"},
+    {code:"NZE-B2",name:"Nzega East B-2",amcos:"Nzega AMCOS",crop:"Flue-cured tobacco",dec:27.4,calc:28.1,ndvi:0.74,sample:"Sampled",sig:3,status:"Active",prop:"Nzega Estate",cell:"Nzega Cell"},
+    {code:"IGA-F4",name:"Igalula South F-4",amcos:"Igalula AMCOS",crop:"Groundnut",dec:9.6,calc:9.4,ndvi:0.61,sample:"Sampled",sig:2,status:"Active",prop:"Igalula Estate",cell:"Igalula Cell"},
+    {code:"KAL-A7",name:"Kaliua Plain A-7",amcos:"Kaliua AMCOS",crop:"Sorghum",dec:15.0,calc:15.3,ndvi:0.53,sample:"Pending",sig:0,status:"Draft",prop:"Kaliua Estate",cell:"Kaliua Cell"},
+    {code:"TAB-E5",name:"Tabora West E-5",amcos:"Tabora Central AMCOS",crop:"Maize",dec:22.1,calc:21.7,ndvi:0.69,sample:"Sampled",sig:2,status:"Active",prop:"Tabora Central Estate",cell:"Tabora Cell"},
+    {code:"URA-B1",name:"Urambo North B-1",amcos:"Urambo AMCOS",crop:"Tobacco",dec:19.9,calc:20.4,ndvi:0.72,sample:"Sampled",sig:3,status:"Active",prop:"Urambo Estate",cell:"Urambo Cell"},
+    {code:"SIK-D8",name:"Sikonge Far D-8",amcos:"Sikonge AMCOS",crop:"Cotton",dec:28.7,calc:29.0,ndvi:0.45,sample:"Overdue",sig:0,status:"Suspended",prop:"Sikonge Estate",cell:"Sikonge Cell"}
+  ];
+
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+
+  function statusBadge(s){
+    var cls = s==="Active"?"b-active":s==="Draft"?"b-draft":"b-susp";
+    return '<span class="badge '+cls+'"><span class="bd" aria-hidden="true"></span>'+esc(s)+'</span>';
+  }
+  function sampleCell(s){
+    var cls = s==="Sampled"?"s-sampled":s==="Pending"?"s-pending":"s-overdue";
+    var col = s==="Sampled"?"var(--accent)":s==="Pending"?"var(--amber)":"var(--accent-2)";
+    return '<span class="sample '+cls+'"><span class="s-dot" style="background:'+col+'"></span>'+esc(s)+'</span>';
+  }
+  function pips(n){
+    var html='<span class="pips" aria-label="'+n+' of 3 signatures">';
+    for(var i=0;i<3;i++){
+      html += '<span class="pip'+(i<n?' on':'')+'">'+(i<n?'<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4"><path d="m5 12 5 5 9-10"/></svg>':'')+'</span>';
+    }
+    html += '<span class="pip-label num">'+n+'/3</span></span>';
+    return html;
+  }
+
+  /* ---------- render rows ---------- */
+  var tbody = document.getElementById("fieldRows");
+  fields.forEach(function(f, idx){
+    var pct = Math.round(((f.ndvi-0.2)/0.7)*100); if(pct<6)pct=6; if(pct>100)pct=100;
+    var cc = cropColor[f.crop]||"#999";
+    var tr = document.createElement("tr");
+    tr.setAttribute("tabindex","0");
+    tr.setAttribute("role","button");
+    tr.setAttribute("aria-label","Open field "+f.code+" "+f.name);
+    tr.dataset.idx = idx;
+    tr.innerHTML =
+      '<td><div class="code-cell"><span class="soil-chip" aria-hidden="true"></span>'+
+        '<div class="code-text"><div class="code-id">'+esc(f.code)+'</div>'+
+        '<div class="code-name">'+esc(f.name)+'</div>'+
+        '<div class="code-amcos">'+esc(f.amcos)+'</div></div></div></td>'+
+      '<td><span class="crop-tag"><span class="crop-dot" style="background:'+cc+'"></span>'+esc(f.crop)+'</span></td>'+
+      '<td class="r"><span class="ha">'+f.dec.toFixed(1)+'<span class="calc"> / '+f.calc.toFixed(1)+'</span></span></td>'+
+      '<td><div class="ndvi"><div class="ndvi-track"><div class="ndvi-fill" style="width:'+pct+'%"></div></div><span class="ndvi-val">'+f.ndvi.toFixed(2)+'</span></div></td>'+
+      '<td>'+sampleCell(f.sample)+'</td>'+
+      '<td>'+pips(f.sig)+'</td>'+
+      '<td>'+statusBadge(f.status)+'</td>'+
+      '<td class="r"><span class="row-go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></td>';
+    tr.addEventListener("click", function(){ openDetail(idx); });
+    tr.addEventListener("keydown", function(e){
+      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openDetail(idx); }
+    });
+    tbody.appendChild(tr);
+  });
+
+  /* ---------- view toggle ---------- */
+  var vList = document.getElementById("view-list");
+  var vDetail = document.getElementById("view-detail");
+  var statusMap = {Active:"b-active",Draft:"b-draft",Suspended:"b-susp"};
+
+  function openDetail(idx){
+    var f = fields[idx];
+    document.getElementById("d-code").textContent = f.code;
+    document.getElementById("d-name").textContent = f.name;
+    document.getElementById("d-prop").textContent = f.prop;
+    document.getElementById("d-cell").textContent = f.cell;
+    document.getElementById("d-amcos").textContent = f.amcos.replace(/ AMCOS$/,"");
+    var sb = document.getElementById("d-status");
+    sb.className = "badge "+statusMap[f.status];
+    sb.innerHTML = '<span class="bd" aria-hidden="true"></span>'+f.status;
+
+    vList.hidden = true;
+    vDetail.hidden = false;
+    window.scrollTo(0,0);
+    requestAnimationFrame(function(){ drawMap(); drawNdvi(); document.getElementById("backBtn").focus(); });
+  }
+  document.getElementById("backBtn").addEventListener("click", function(){
+    vDetail.hidden = true;
+    vList.hidden = false;
+    window.scrollTo(0,0);
+  });
+
+  /* ---------- NDVI ring ---------- */
+  function drawNdvi(){
+    var c = document.getElementById("ndviRing");
+    if(!c) return;
+    var dpr = window.devicePixelRatio||1, S=76;
+    c.width=S*dpr; c.height=S*dpr; c.style.width=S+"px"; c.style.height=S+"px";
+    var x=c.getContext("2d"); x.setTransform(dpr,0,0,dpr,0,0);
+    x.clearRect(0,0,S,S);
+    var cx=S/2, cy=S/2, r=30, val=0.71;
+    x.lineWidth=8; x.lineCap="round";
+    x.strokeStyle="#ECE3D4"; x.beginPath(); x.arc(cx,cy,r,0,Math.PI*2); x.stroke();
+    var g=x.createLinearGradient(0,0,S,S); g.addColorStop(0,"#A9C26A"); g.addColorStop(1,"#3E7D44");
+    x.strokeStyle=g; x.beginPath();
+    x.arc(cx,cy,r,-Math.PI/2, -Math.PI/2 + Math.PI*2*val); x.stroke();
+  }
+
+  /* ---------- MAP ---------- */
+  var poly = [[32.8090,-5.0210],[32.8138,-5.0205],[32.8156,-5.0228],[32.8149,-5.0258],[32.8118,-5.0271],[32.8086,-5.0262],[32.8074,-5.0238],[32.8090,-5.0210]];
+  var centroid=[32.8114,-5.0238];
+
+  // deterministic neighbouring parcels (procedural, around the main plot)
+  var neighbours = [
+    [[32.8158,-5.0200],[32.8190,-5.0198],[32.8198,-5.0224],[32.8170,-5.0230],[32.8158,-5.0200]],
+    [[32.8160,-5.0245],[32.8192,-5.0250],[32.8186,-5.0285],[32.8156,-5.0278],[32.8160,-5.0245]],
+    [[32.8040,-5.0205],[32.8072,-5.0212],[32.8066,-5.0244],[32.8038,-5.0238],[32.8040,-5.0205]],
+    [[32.8046,-5.0258],[32.8078,-5.0266],[32.8070,-5.0298],[32.8042,-5.0290],[32.8046,-5.0258]],
+    [[32.8096,-5.0150],[32.8140,-5.0152],[32.8146,-5.0188],[32.8100,-5.0190],[32.8096,-5.0150]],
+    [[32.8094,-5.0288],[32.8140,-5.0292],[32.8132,-5.0322],[32.8090,-5.0316],[32.8094,-5.0288]]
+  ];
+
+  function drawMap(){
+    var c = document.getElementById("fieldMap");
+    if(!c) return;
+    var dpr = window.devicePixelRatio||1;
+    var W = c.clientWidth, H = c.clientHeight;
+    if(W===0){ W = c.parentElement.clientWidth; }
+    c.width = W*dpr; c.height = H*dpr;
+    var x = c.getContext("2d"); x.setTransform(dpr,0,0,dpr,0,0);
+
+    // bbox over ALL geometry for shared framing, then pad
+    var all = [].concat(poly);
+    neighbours.forEach(function(n){ all = all.concat(n); });
+    var lons = all.map(function(p){return p[0];}), lats = all.map(function(p){return p[1];});
+    var minLon=Math.min.apply(null,lons), maxLon=Math.max.apply(null,lons);
+    var minLat=Math.min.apply(null,lats), maxLat=Math.max.apply(null,lats);
+    var padX=(maxLon-minLon)*0.10, padY=(maxLat-minLat)*0.10;
+    minLon-=padX; maxLon+=padX; minLat-=padY; maxLat+=padY;
+
+    // fit preserving aspect
+    var dataW=maxLon-minLon, dataH=maxLat-minLat;
+    var scale = Math.min(W/dataW, H/dataH)*0.86;
+    var offX = (W - dataW*scale)/2;
+    var offY = (H - dataH*scale)/2;
+    function P(lon,lat){
+      return [ offX + (lon-minLon)*scale,
+               offY + (maxLat-lat)*scale ]; // invert lat
+    }
+
+    // background
+    x.fillStyle="#EFE7D6"; x.fillRect(0,0,W,H);
+
+    // subtle contour-ish grid
+    x.strokeStyle="rgba(122,82,48,.07)"; x.lineWidth=1;
+    for(var gx=0; gx<=W; gx+=46){ x.beginPath(); x.moveTo(gx,0); x.lineTo(gx,H); x.stroke(); }
+    for(var gy=0; gy<=H; gy+=46){ x.beginPath(); x.moveTo(0,gy); x.lineTo(W,gy); x.stroke(); }
+
+    // a faint "river" sweep for context
+    x.strokeStyle="rgba(110,143,168,.35)"; x.lineWidth=5; x.lineCap="round";
+    x.beginPath();
+    var rA=P(minLon+dataW*0.02,maxLat-dataH*0.30), rB=P(minLon+dataW*0.45,maxLat-dataH*0.55), rC=P(maxLon-dataW*0.02,maxLat-dataH*0.40);
+    x.moveTo(rA[0],rA[1]); x.quadraticCurveTo(rB[0],rB[1],rC[0],rC[1]); x.stroke();
+
+    // neighbours
+    neighbours.forEach(function(n){
+      x.beginPath();
+      n.forEach(function(p,i){ var q=P(p[0],p[1]); i? x.lineTo(q[0],q[1]) : x.moveTo(q[0],q[1]); });
+      x.closePath();
+      x.fillStyle="rgba(192,138,62,.13)"; x.fill();
+      x.strokeStyle="rgba(122,82,48,.30)"; x.lineWidth=1; x.stroke();
+    });
+
+    // main polygon
+    x.beginPath();
+    poly.forEach(function(p,i){ var q=P(p[0],p[1]); i? x.lineTo(q[0],q[1]) : x.moveTo(q[0],q[1]); });
+    x.closePath();
+    x.fillStyle="rgba(62,125,68,.20)"; x.fill();
+    x.strokeStyle="#3E7D44"; x.lineWidth=2.4; x.lineJoin="round"; x.stroke();
+
+    // vertex dots
+    poly.slice(0,-1).forEach(function(p){
+      var q=P(p[0],p[1]);
+      x.beginPath(); x.arc(q[0],q[1],2.6,0,Math.PI*2);
+      x.fillStyle="#3E7D44"; x.fill();
+      x.strokeStyle="#fff"; x.lineWidth=1.2; x.stroke();
+    });
+
+    // centroid marker
+    var cq=P(centroid[0],centroid[1]);
+    x.beginPath(); x.arc(cq[0],cq[1],6,0,Math.PI*2);
+    x.fillStyle="#B5532A"; x.fill();
+    x.strokeStyle="#fff"; x.lineWidth=2; x.stroke();
+    x.beginPath(); x.arc(cq[0],cq[1],2,0,Math.PI*2); x.fillStyle="#fff"; x.fill();
+
+    // ---- scale bar (0.001 deg ~= 110 m here) ----
+    var barDeg=0.001, barPx=barDeg*scale;
+    var bx=16, by=H-22;
+    x.strokeStyle="#3a2f22"; x.lineWidth=2.4;
+    x.beginPath(); x.moveTo(bx,by); x.lineTo(bx+barPx,by); x.stroke();
+    x.beginPath(); x.moveTo(bx,by-4); x.lineTo(bx,by+4); x.moveTo(bx+barPx,by-4); x.lineTo(bx+barPx,by+4); x.stroke();
+    x.fillStyle="#3a2f22"; x.font="600 11px ui-monospace, Menlo, Consolas, monospace";
+    x.textBaseline="bottom"; x.fillText("~110 m", bx, by-6);
+
+    // ---- north arrow ----
+    var nx=W-26, ny=30;
+    x.beginPath(); x.moveTo(nx,ny-12); x.lineTo(nx-6,ny+8); x.lineTo(nx,ny+3); x.lineTo(nx+6,ny+8); x.closePath();
+    x.fillStyle="#3a2f22"; x.fill();
+    x.fillStyle="#3a2f22"; x.font="700 11px var(--sans), sans-serif";
+    x.textAlign="center"; x.textBaseline="top"; x.fillText("N", nx, ny+10);
+    x.textAlign="start";
+  }
+
+  /* redraw on resize when detail visible */
+  var rt;
+  window.addEventListener("resize", function(){
+    clearTimeout(rt);
+    rt = setTimeout(function(){ if(!vDetail.hidden){ drawMap(); drawNdvi(); } }, 120);
+  });
+
+  /* ---------- off-canvas nav drawer (mobile) ---------- */
+  var sidebar = document.getElementById("primaryNav");
+  var toggle = document.getElementById("navToggle");
+  var overlay = document.getElementById("navOverlay");
+
+  function drawerOpen(){
+    sidebar.classList.add("open");
+    overlay.hidden = false;
+    // allow display to apply before transitioning opacity
+    requestAnimationFrame(function(){ overlay.classList.add("show"); });
+    toggle.setAttribute("aria-expanded","true");
+    // move focus to first interactive item in the drawer
+    var first = sidebar.querySelector(".nav-item");
+    if(first) first.focus();
+  }
+  function drawerClose(returnFocus){
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+    toggle.setAttribute("aria-expanded","false");
+    var done = function(){ overlay.hidden = true; overlay.removeEventListener("transitionend", done); };
+    // hide overlay after fade; also guard if reduced-motion skips transition
+    overlay.addEventListener("transitionend", done);
+    setTimeout(done, 260);
+    if(returnFocus) toggle.focus();
+  }
+  function drawerIsOpen(){ return sidebar.classList.contains("open"); }
+
+  toggle.addEventListener("click", function(){
+    drawerIsOpen() ? drawerClose(true) : drawerOpen();
+  });
+  overlay.addEventListener("click", function(){ drawerClose(true); });
+  document.addEventListener("keydown", function(e){
+    if(e.key==="Escape" && drawerIsOpen()) drawerClose(true);
+  });
+  // close on nav activation
+  sidebar.querySelectorAll(".nav-item").forEach(function(item){
+    item.addEventListener("click", function(){ if(drawerIsOpen()) drawerClose(false); });
+  });
+  // if viewport grows past drawer breakpoint, ensure drawer state is reset
+  window.addEventListener("resize", function(){
+    if(window.innerWidth > 768 && drawerIsOpen()) drawerClose(false);
+  });
+})();
+</script>
+
+</body>
+</html>
